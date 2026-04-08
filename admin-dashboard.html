@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MediWard Admin Panel</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+display:flex;
+background:#f4f6f9;
+}
+
+.sidebar{
+width:240px;
+height:100vh;
+background:#1f2937;
+color:white;
+padding:25px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+}
+
+.sidebar h4{
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+text-decoration:none;
+padding:12px;
+margin-bottom:10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.sidebar a:hover{
+background:#374151;
+}
+
+.main{
+flex:1;
+padding:40px;
+}
+
+.section{
+display:none;
+}
+
+.section.active{
+display:block;
+}
+
+.card-box{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+margin-bottom:25px;
+}
+
+.progress{
+height:28px;
+border-radius:10px;
+overflow:hidden;
+}
+
+.alert{
+border-radius:10px;
+margin-bottom:10px;
+}
+
+.logout{
+background:#ef4444;
+text-align:center;
+padding:12px;
+border-radius:6px;
+text-decoration:none;
+color:white;
+cursor:pointer;
+}
+
+/* TOAST */
+#toast{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  min-width:260px;
+  padding:14px 20px;
+  border-radius:10px;
+  font-size:.9rem;
+  font-weight:600;
+  color:white;
+  z-index:9999;
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity .3s,transform .3s;
+  pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.success{background:#16a34a;}
+#toast.error{background:#dc2626;}
+
+/* CONFIRM MODAL */
+#confirmModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+}
+#confirmModal.show{display:flex;}
+#confirmBox{
+  background:white;
+  border-radius:14px;
+  padding:32px 28px;
+  width:100%;
+  max-width:380px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  text-align:center;
+}
+#confirmBox h5{margin-bottom:8px;font-weight:700;}
+#confirmBox p{color:#6b7280;font-size:.9rem;margin-bottom:24px;}
+#confirmBox .btn-row{display:flex;gap:10px;justify-content:center;}
+
+/* WARD INLINE MSG */
+#wardMsg{
+  display:none;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:.875rem;
+  font-weight:600;
+  margin-top:12px;
+}
+#wardMsg.success{background:#dcfce7;color:#16a34a;border:1px solid #86efac;}
+#wardMsg.error{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;}
+
+/* WARD EDIT INPUT */
+.ward-edit-input{
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  padding:5px 10px;
+  font-size:.875rem;
+  width:160px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal">
+  <div id="confirmBox">
+    <h5 id="confirmTitle">Are you sure?</h5>
+    <p id="confirmDesc">This action cannot be undone.</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary btn-sm px-4" onclick="confirmResolve(false)">Cancel</button>
+      <button class="btn btn-danger btn-sm px-4" onclick="confirmResolve(true)">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="wardViewModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:25px; border-radius:12px; width:90%; max-width:700px; max-height:80vh; overflow:auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 id="wardViewTitle">Ward Patients</h5>
+      <button class="btn btn-sm btn-danger" onclick="closeWardView()">Close</button>
+    </div>
+
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody id="wardPatientsTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="teamViewModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:25px; border-radius:12px; width:90%; max-width:700px; max-height:80vh; overflow:auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 id="teamViewTitle">Team Members</h5>
+      <button class="btn btn-sm btn-danger" onclick="closeTeamView()">Close</button>
+    </div>
+
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Role</th>
+           <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="teamMembersTable"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<div class="sidebar">
+<div>
+<h4>MediWard Admin</h4>
+<a onclick="showSection('dashboard')">Dashboard</a>
+<a onclick="showSection('users')">Users</a>
+<a onclick="showSection('staff')">Staff</a>
+<a onclick="showSection('wards')">Wards</a>
+<a onclick="showSection('teams')">Teams</a>
+<a onclick="showSection('reports')">Reports</a>
+
+</div>
+<a onclick="handleLogout()" class="logout">Logout</a>
+</div>
+
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active">
+
+<h3 class="mb-4">MediwardAdmin Dashboard</h3>
+
+<!-- 4: Added Total Wards, changed col-md-4 to col-md-3 -->
+<div class="row g-4">
+
+<div class="col-md-2">
+<div class="card-box">
+<h6>Total Doctors</h6>
+<h3 id="doctorCount">—</h3>
+</div>
+</div>
+
+<div class="col-md-2">
+<div class="card-box">
+<h6>Total Nurses</h6>
+<h3 id="nurseCount">—</h3>
+</div>
+</div>
+
+<div class="col-md-2">
+<div class="card-box">
+<h6>Total Patients</h6>
+<h3 id="patientCount">—</h3>
+</div>
+</div>
+
+<div class="col-md-2">
+<div class="card-box">
+<h6>Total Wards</h6>
+<h3 id="wardCount">—</h3>
+</div>
+</div>
+
+
+<div class="col-md-2">
+<div class="card-box">
+<h6>Admitted Patient</h6>
+<h3 id="admittedCount">—</h3>
+</div>
+</div>
+
+
+
+
+</div>
+<!-- WARD METRICS + ALERTS -->
+<div class="row g-4 mt-2">
+
+<div class="col-md-8">
+<div class="card-box">
+<h5 class="mb-3">Ward Performance Metrics</h5>
+<div class="progress mb-3">
+<div class="progress-bar bg-primary" style="width:70%">Ward A (Surgical) - 70% Full</div>
+<div class="progress-bar bg-info" style="width:20%">Ward B - 20%</div>
+<div class="progress-bar bg-light text-dark" style="width:10%">Vacant</div>
+</div>
+<p class="text-muted small">Data automatically refreshed every 60 seconds (NF4 Requirement)</p>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card-box">
+<h5 class="mb-3">Urgent Alerts</h5>
+<div class="alert alert-danger">Unauthorized Login Attempt: Node 04</div>
+<div class="alert alert-warning">Ward A: Capacity Threshold 90%</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- USERS: 1 - Added Gender and Role columns -->
+<div id="users" class="section">
+<h3 class="mb-4">All Users</h3>
+<div class="card-box">
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Gender</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="usersTable"></tbody>
+</table>
+</div>
+</div>
+
+<!-- STAFF: 6 - No ID, shows Firstname / Lastname / Gender / Email / Role -->
+<div id="staff" class="section">
+<h3 class="mb-4">Staff Members</h3>
+<div class="card-box">
+<table class="table">
+<thead>
+<tr>
+<th>First Name</th>
+<th>Last Name</th>
+<th>Gender</th>
+<th>Email</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody id="staffTable"></tbody>
+</table>
+</div>
+</div>
+
+<!-- WARDS: 3 - Full ward management (create, list, edit, delete) -->
+<div id="wards" class="section">
+<h3 class="mb-4">Ward Management</h3>
+
+<div class="card-box">
+<h5>Create Ward</h5>
+<div class="d-flex gap-2 align-items-start mt-3">
+  <input id="wardName" class="form-control" style="max-width:280px" placeholder="Ward Name">
+  <button class="btn btn-primary" onclick="createWard()">Create Ward</button>
+</div>
+<!-- 2: Inline feedback, no browser alert -->
+<div id="wardMsg"></div>
+</div>
+
+<div class="card-box">
+<h5 class="mb-3">All Wards</h5>
+<table class="table">
+<thead>
+<tr>
+<th>Name</th>
+<th>Bed Occupancy</th>
+<th>Bed Capacity</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="wardsTableBody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- REPORTS -->
+<div id="reports" class="section">
+<h3 class="mb-4">Reports</h3>
+<div class="card-box">
+<button class="btn btn-info me-2"    onclick="getAdmissions()">Patient Admissions Summary</button>
+<button class="btn btn-warning me-2" onclick="getDischarges()">Patient Discharge Summary</button>
+<button class="btn btn-success"      onclick="getAppointments()">Appointments Per Doctor</button>
+<div id="reportResult" class="mt-3"></div>
+</div>
+</div>
+
+
+<!-- TEAMS -->
+<div id="teams" class="section">
+  <h3 class="mb-4">Team Management</h3>
+
+  <!-- CREATE TEAM -->
+  <div class="card-box">
+    <h5>Create Team</h5>
+    <div class="d-flex gap-2 mt-3">
+      <input id="teamName" class="form-control" style="max-width:280px" placeholder="Team Name">
+      <button class="btn btn-primary" onclick="createTeam()">Create Team</button>
+    </div>
+  </div>
+
+  <!-- TEAM LIST -->
+  <div class="card-box">
+    <h5 class="mb-3">All Teams</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Members</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="teamsTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ADD USER -->
+<div class="card-box">
+  <h5>Add User to Team</h5>
+  <div class="d-flex gap-2 flex-wrap mt-3">
+    <select id="teamSelect" class="form-control"></select>
+    <select id="userSelect" class="form-control"></select>
+    <button class="btn btn-success" onclick="addUserToTeam()">Add User</button>
+  </div>
+</div>
+
+
+
+<script>
+
+// ── AUTH GUARD ─────────────────────────────────────────────────
+const TOKEN = localStorage.getItem('aura_admin_token');
+if (!TOKEN) window.location.href = 'admin-login.html';
+
+const API_BASE = "http://localhost:3000/admin";
+
+function headers() {
+  return {
+    "Authorization": `Bearer ${TOKEN}`,
+    "Content-Type": "application/json"
+  };
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ""; }, 3500);
+}
+
+// ── CONFIRM MODAL ──────────────────────────────────────────────
+let _confirmResolve = null;
+
+function customConfirm(title, desc) {
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmDesc").textContent  = desc;
+  document.getElementById("confirmModal").classList.add("show");
+  return new Promise(res => { _confirmResolve = res; });
+}
+
+function confirmResolve(val) {
+  document.getElementById("confirmModal").classList.remove("show");
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+
+// ── LOGOUT ─────────────────────────────────────────────────────
+async function handleLogout() {
+  try {
+    await fetch(API_BASE + "/logout", { method: "POST", headers: headers() });
+  } catch (_) {}
+  localStorage.removeItem('aura_admin_token');
+  window.location.href = "admin-login.html";
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if (id === "wards") loadWards();
+
+  if (id === "teams") {
+    loadTeams();
+    loadUserOptions(); // 👈 IMPORTANT
+  }
+}
+
+// ── DASHBOARD COUNTS ───────────────────────────────────────────
+async function loadCounts() {
+  try {
+    const [drRes, nuRes, ptRes, wdRes, ptadRes] = await Promise.all([
+      fetch(API_BASE + "/staff/doctor",  { headers: headers() }),
+      fetch(API_BASE + "/staff/patient", { headers: headers() }),
+      fetch(API_BASE + "/staff/nurse",   { headers: headers() }),
+      fetch(API_BASE + "/ward/total",   { headers: headers() }),  
+      fetch(API_BASE + "/patient/admitted", { headers: headers() }) 
+    ]);
+
+    if ([drRes, nuRes, ptRes, wdRes, ptadRes].some(r => r.status === 401)) {
+      handleLogout(); return;
+    }
+
+    const [doctors, nurses, patients, wards, admitted] = await Promise.all([
+      drRes.json(), nuRes.json(), ptRes.json(), wdRes.json(),ptadRes.json()
+    ]);
+
+    document.getElementById("doctorCount").innerText  = doctors.total  ?? "—";
+    document.getElementById("nurseCount").innerText   = nurses.total   ?? "—";
+    document.getElementById("patientCount").innerText = patients.total ?? "—";
+    document.getElementById("wardCount").innerText    = wards.total    ?? "—";
+    document.getElementById("admittedCount").innerText = admitted.totalAdmitted ?? "—";
+
+  } catch (err) {
+    console.error("Failed to load counts:", err);
+  }
+}
+
+loadCounts();
+
+// ── USERS ──────────────────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const res = await fetch(API_BASE + "/users?page=1&pageSize=10", { headers: headers() });
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data  = await res.json();
+    const users = data.data || [];
+
+    if (!users.length) {
+      document.getElementById("usersTable").innerHTML =
+        '<tr><td colspan="6" class="text-center text-muted">No users found.</td></tr>';
+      return;
+    }
+
+    // 1: gender and role rendered per row
+    document.getElementById("usersTable").innerHTML = users.map(u => `
+      <tr>
+        <td>${u.id}</td>
+        <td>${u.firstname ?? ""} ${u.lastname ?? ""}</td>
+        <td>${u.email}</td>
+        <td>${u.gender ?? "—"}</td>
+        <td><span class="badge bg-secondary">${u.role ?? "—"}</span></td>
+        <td>
+          <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}', this)">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error("Failed to load users:", err);
+  }
+}
+
+loadUsers();
+
+// 5: Uses custom modal instead of browser confirm()
+async function deleteUser(id, btn) {
+  const confirmed = await customConfirm(
+    "Delete this user?",
+    "This action is permanent and cannot be undone."
+  );
+  if (!confirmed) return;
+
+  btn.disabled  = true;
+  btn.innerText = "...";
+
+  try {
+    const res = await fetch(API_BASE + "/user/" + id, {
+      method: "DELETE", headers: headers()
+    });
+    if (res.status === 401) { handleLogout(); return; }
+
+    if (res.ok) {
+      showToast("User deleted successfully.");
+      loadUsers();
+    } else {
+      const err = await res.json();
+      showToast(err.message || "Failed to delete user.", "error");
+      btn.disabled  = false;
+      btn.innerText = "Delete";
+    }
+  } catch (err) {
+    showToast("Network error. Please try again.", "error");
+    btn.disabled  = false;
+    btn.innerText = "Delete";
+  }
+}
+
+// ── STAFF ──────────────────────────────────────────────────────
+// 6: Firstname, Lastname, Gender, Email, Role — no ID
+async function loadStaff() {
+  try {
+    const res = await fetch(API_BASE + "/staff?page=1&pageSize=10", { headers: headers() });
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data  = await res.json();
+    const staff = data.data || [];
+
+    if (!staff.length) {
+      document.getElementById("staffTable").innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted">No staff found.</td></tr>';
+      return;
+    }
+
+    document.getElementById("staffTable").innerHTML = staff.map(s => `
+      <tr>
+        <td>${s.firstname ?? "—"}</td>
+        <td>${s.lastname  ?? "—"}</td>
+        <td>${s.gender    ?? "—"}</td>
+        <td>${s.email}</td>
+        <td><span class="badge bg-secondary">${s.role ?? "—"}</span></td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error("Failed to load staff:", err);
+  }
+}
+
+loadStaff();
+
+
+
+
+
+// ── WARDS ──────────────────────────────────────────────────────
+
+// 2: Inline green/red banner — no alert(), no console popup
+function showWardMsg(msg, type = "success") {
+  const el = document.getElementById("wardMsg");
+  el.textContent   = msg;
+  el.className     = type;
+  el.style.display = "block";
+  setTimeout(() => { el.style.display = "none"; }, 3500);
+}
+
+async function createWard() {
+  const name = document.getElementById("wardName").value.trim();
+  if (!name) { showWardMsg("Please enter a ward name.", "error"); return; }
+
+  try {
+    const res  = await fetch(API_BASE + "/ward", {
+      method: "POST", headers: headers(), body: JSON.stringify({ name })
+    });
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data = await res.json();
+    if (res.ok) {
+      showWardMsg(`Ward "${data.ward?.name ?? name}" created successfully!`, "success");
+      document.getElementById("wardName").value = "";
+      loadWards();
+      loadCounts();
+    } else {
+      showWardMsg(data.message || "Failed to create ward.", "error");
+    }
+  } catch (err) {
+    showWardMsg("Network error. Please try again.", "error");
+  }
+}
+
+// 3: Fetch and render all wards with inline edit + delete
+// Route: GET /admin/ward  (singular — matches all other ward routes in AdminController)
+async function loadWards() {
+  try {
+    const res = await fetch(API_BASE + "/ward?page=1&pageSize=50", { headers: headers() });
+    if (res.status === 401) { handleLogout(); return; }
+
+    if (!res.ok) {
+      document.getElementById("wardsTableBody").innerHTML =
+        `<tr><td colspan="4" class="text-center text-danger">Failed to load wards (${res.status}).</td></tr>`;
+      return;
+    }
+
+    const data  = await res.json();
+    const wards = data.data || [];
+
+    if (!wards.length) {
+      document.getElementById("wardsTableBody").innerHTML =
+        '<tr><td colspan="4" class="text-center text-muted">No wards found.</td></tr>';
+      return;
+    }
+
+    document.getElementById("wardsTableBody").innerHTML = wards.map(w => `
+      <tr id="ward-row-${w.id}">
+        <td>
+          <span id="ward-name-${w.id}">${w.name}</span>
+          <input id="ward-input-${w.id}" class="ward-edit-input" value="${w.name}" style="display:none">
+        </td>
+        <td>${w.currentoccupancy ?? 0}</td>
+        <td>${w.totaloccupancy ?? 30}</td>
+        <td>
+          <div id="ward-view-btns-${w.id}">
+              <button class="btn btn-sm btn-info me-1" onclick="viewWard('${w.id}', '${w.name}')">View</button>
+            <button class="btn btn-sm btn-warning me-1" onclick="startEditWard('${w.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger"       onclick="deleteWard('${w.id}', '${w.name}')">Delete</button>
+          </div>
+          <div id="ward-edit-btns-${w.id}" style="display:none">
+            <button class="btn btn-sm btn-success me-1" onclick="saveWard('${w.id}')">Save</button>
+            <button class="btn btn-sm btn-secondary"    onclick="cancelEditWard('${w.id}', '${w.name}')">Cancel</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error("Failed to load wards:", err);
+    document.getElementById("wardsTableBody").innerHTML =
+      '<tr><td colspan="4" class="text-center text-danger">Network error loading wards.</td></tr>';
+  }
+}
+
+function startEditWard(id) {
+  document.getElementById(`ward-name-${id}`).style.display      = "none";
+  document.getElementById(`ward-input-${id}`).style.display     = "inline-block";
+  document.getElementById(`ward-view-btns-${id}`).style.display = "none";
+  document.getElementById(`ward-edit-btns-${id}`).style.display = "block";
+  document.getElementById(`ward-input-${id}`).focus();
+}
+
+function cancelEditWard(id, originalName) {
+  document.getElementById(`ward-input-${id}`).value             = originalName;
+  document.getElementById(`ward-name-${id}`).style.display      = "inline";
+  document.getElementById(`ward-input-${id}`).style.display     = "none";
+  document.getElementById(`ward-view-btns-${id}`).style.display = "block";
+  document.getElementById(`ward-edit-btns-${id}`).style.display = "none";
+}
+
+async function saveWard(id) {
+  const name = document.getElementById(`ward-input-${id}`).value.trim();
+  if (!name) { showToast("Ward name cannot be empty.", "error"); return; }
+
+  try {
+    const res  = await fetch(API_BASE + "/ward/" + id, {
+      method: "PUT", headers: headers(), body: JSON.stringify({ name })
+    });
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`Ward updated`);
+      loadWards();
+    } else {
+      showToast(data.message || "Failed to update ward.", "error");
+    }
+  } catch (err) {
+    showToast("Network error. Please try again.", "error");
+  }
+}
+
+async function deleteWard(id, name) {
+  const confirmed = await customConfirm(
+    `Ward Deleted`,
+    "All data for this ward will be permanently removed."
+  );
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(API_BASE + "/ward/" + id, {
+      method: "DELETE", headers: headers()
+    });
+    if (res.status === 401) { handleLogout(); return; }
+
+    if (res.ok) {
+      showToast(`Ward deleted.`);
+      loadWards();
+      loadCounts();
+    } else {
+      const err = await res.json();
+      showToast(err.message || "Failed to delete ward.", "error");
+    }
+  } catch (err) {
+    showToast("Network error. Please try again.", "error");
+  }
+}
+
+
+async function viewWard(id, name) {
+  try {
+    const res = await fetch(API_BASE + "/ward/" + id, { headers: headers() });
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Failed to load ward", "error");
+      return;
+    }
+
+    const ward = data.ward;
+    const patients = ward.patients || [];
+
+    document.getElementById("wardViewTitle").innerText = `${ward.name} Patients`;
+
+    if (!patients.length) {
+      document.getElementById("wardPatientsTable").innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted">No patients in this ward</td></tr>';
+    } else {
+      document.getElementById("wardPatientsTable").innerHTML = patients.map(p => `
+        <tr>
+          <td>${p.firstname ?? ""}</td>
+          <td>${p.lastname ?? ""}</td>
+          <td>${p.email}</td>
+          <td><span class="badge bg-secondary">${p.role}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("wardViewModal").style.display = "flex";
+
+  } catch (err) {
+    showToast("Network error", "error");
+  }
+}
+
+function closeWardView() {
+  document.getElementById("wardViewModal").style.display = "none";
+}
+
+// ── REPORTS ────────────────────────────────────────────────────
+
+async function getAdmissions() {
+  try {
+    const res = await fetch(
+      API_BASE + "/admissions?year=" + new Date().getFullYear(),
+      { headers: headers() }
+    );
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-danger mb-0">${data.message || "Error fetching admissions."}</p>
+        </div>
+      `;
+      return;
+    }
+
+    const admissions = data.data || [];
+
+    if (!admissions.length) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-muted mb-0">No admissions found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <h5 class="mb-3">Patient Admissions Summary</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Reason</th>
+              <th>Admission Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${admissions.map(a => `
+              <tr>
+                <td>${a.Firstname ?? "—"}</td>
+                <td>${a.Lastname ?? "—"}</td>
+                <td>${a.reasonforadmission ?? "—"}</td>
+                <td>${new Date(a.admissionDate).toLocaleString()}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <p class="text-danger mb-0">Error fetching admissions.</p>
+      </div>
+    `;
+  }
+}
+
+async function getDischarges() {
+  try {
+    const res = await fetch(API_BASE + "/discharges", { headers: headers() });
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-danger mb-0">${data.message || "Error fetching discharges."}</p>
+        </div>
+      `;
+      return;
+    }
+
+    const discharges = data.data || [];
+
+    if (!discharges.length) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-muted mb-0">No discharge records found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <h5 class="mb-3">Discharge Summary</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Discharge Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${discharges.map(d => `
+              <tr>
+                <td>${d.Firstname ?? "—"}</td>
+                <td>${d.Lastname ?? "—"}</td>
+                <td>${new Date(d.dischargeDate).toLocaleString()}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <p class="text-danger mb-0">Error fetching discharge summary.</p>
+      </div>
+    `;
+  }
+}
+
+
+
+
+async function getAppointments() {
+  try {
+    const res = await fetch(API_BASE + "/appointments", { headers: headers() });
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-danger mb-0">${data.message || "Error fetching appointments."}</p>
+        </div>
+      `;
+      return;
+    }
+
+    const stats = data.stats || [];
+
+    if (!stats.length) {
+      document.getElementById("reportResult").innerHTML = `
+        <div class="card-box">
+          <p class="text-muted mb-0">No appointment data found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <h5 class="mb-3">Appointments Per Doctor</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Total Appointments</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${stats.map(item => `
+              <tr>
+                <td>${item.firstname ?? "—"}</td>
+                <td>${item.lastname ?? "—"}</td>
+                <td>${item.total ?? 0}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById("reportResult").innerHTML = `
+      <div class="card-box">
+        <p class="text-danger mb-0">Error fetching appointments.</p>
+      </div>
+    `;
+  }
+}
+
+
+
+// ── AUTO REFRESH EVERY 60 SECONDS ──────────────────────────────
+setInterval(() => {
+  loadCounts();
+  loadUsers();
+  loadStaff();
+  console.log("Dashboard refreshed");
+}, 60000);
+
+
+
+// ── TEAMS ─────────────────────────────────────────────────────
+
+// LOAD TEAMS
+async function loadTeams() {
+  try {
+    const res = await fetch(API_BASE + "/team", { headers: headers() });
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data = await res.json();
+    const teams = data.data || [];
+
+    if (!teams.length) {
+      document.getElementById("teamsTableBody").innerHTML =
+        '<tr><td colspan="3" class="text-center text-muted">No teams found.</td></tr>';
+      loadTeamOptions([]);
+      return;
+    }
+
+    document.getElementById("teamsTableBody").innerHTML = teams.map(t => `
+      <tr>
+        <td>
+          <span id="team-name-${t.id}">${t.name}</span>
+          <input id="team-input-${t.id}" class="ward-edit-input" value="${t.name}" style="display:none">
+        </td>
+
+        <td>
+${t.users?.length ?? 0}
+        </td>
+
+        <td>
+          <div id="team-view-${t.id}">
+            <button class="btn btn-sm btn-info me-1" onclick="viewTeam('${t.id}', '${t.name}')">View</button>
+            <button class="btn btn-sm btn-warning me-1" onclick="startEditTeam('${t.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteTeam('${t.id}', '${t.name}')">Delete</button>
+          </div>
+
+          <div id="team-edit-${t.id}" style="display:none">
+            <button class="btn btn-sm btn-success me-1" onclick="saveTeam('${t.id}')">Save</button>
+            <button class="btn btn-sm btn-secondary" onclick="cancelEditTeam('${t.id}', '${t.name}')">Cancel</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+    loadTeamOptions(teams);
+
+  } catch (err) {
+    console.error("Failed to load teams:", err);
+    document.getElementById("teamsTableBody").innerHTML =
+      '<tr><td colspan="3" class="text-center text-danger">Failed to load teams.</td></tr>';
+  }
+}
+
+// CREATE TEAM
+async function createTeam() {
+  const name = document.getElementById("teamName").value.trim();
+  if (!name) return showToast("Team name required", "error");
+
+  try {
+    const res = await fetch(API_BASE + "/team", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ name })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast("Team created successfully");
+      document.getElementById("teamName").value = "";
+      loadTeams();
+    } else {
+      showToast(data.message || "Failed to create team", "error");
+    }
+
+  } catch {
+    showToast("Network error", "error");
+  }
+}
+
+async function viewTeam(id, name) {
+  try {
+    const res = await fetch(API_BASE + "/team/" + id, { headers: headers() });
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Failed to load team", "error");
+      return;
+    }
+
+    const team = data.team;
+    const members = team.users || [];
+
+    document.getElementById("teamViewTitle").innerText = `${team.name} Members`;
+
+    if (!members.length) {
+      document.getElementById("teamMembersTable").innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted">No members in this team</td></tr>';
+    } else {
+      document.getElementById("teamMembersTable").innerHTML = members.map(u => `
+        <tr>
+          <td>${u.firstname ?? ""}</td>
+          <td>${u.lastname ?? ""}</td>
+          <td>${u.email ?? ""}</td>
+          <td><span class="badge bg-secondary">${u.role ?? ""}</span></td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="removeMemberFromView('${team.id}', '${u.id}', '${team.name}')">
+              Remove
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("teamViewModal").style.display = "flex";
+
+  } catch (err) {
+    showToast("Network error", "error");
+  }
+}
+
+
+async function loadUserOptions() {
+  try {
+    const res = await fetch(API_BASE + "/staff?page=1&pageSize=100", {
+      headers: headers()
+    });
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+    const users = data.data || [];
+
+    const validUsers = users.filter(u => {
+      const role = (u.role || "").trim().toLowerCase();
+      return role === "doctor" || role === "nurse";
+    });
+
+    if (!validUsers.length) {
+      document.getElementById("userSelect").innerHTML =
+        '<option value="">No doctor or nurse found</option>';
+      return;
+    }
+
+    document.getElementById("userSelect").innerHTML = `
+      <option value="">Select Staff</option>
+      ${validUsers.map(u => `
+        <option value="${u.id}">
+          ${u.firstname ?? ""} ${u.lastname ?? ""} - ${u.role}
+        </option>
+      `).join("")}
+    `;
+  } catch (err) {
+    console.error("Failed to load users for team dropdown", err);
+    document.getElementById("userSelect").innerHTML =
+      '<option value="">Failed to load users</option>';
+  }
+}
+
+function loadTeamOptions(teams = []) {
+  const options = ['<option value="">Select Team</option>'].concat(
+    teams.map(t => `<option value="${t.id}">${t.name}</option>`)
+  ).join("");
+
+  document.getElementById("teamSelect").innerHTML = options;
+}
+
+
+function closeTeamView() {
+  document.getElementById("teamViewModal").style.display = "none";
+}
+
+// EDIT TEAM
+function startEditTeam(id) {
+  document.getElementById(`team-name-${id}`).style.display = "none";
+  document.getElementById(`team-input-${id}`).style.display = "inline-block";
+  document.getElementById(`team-view-${id}`).style.display = "none";
+  document.getElementById(`team-edit-${id}`).style.display = "block";
+}
+
+function cancelEditTeam(id, name) {
+  document.getElementById(`team-input-${id}`).value = name;
+  document.getElementById(`team-name-${id}`).style.display = "inline";
+  document.getElementById(`team-input-${id}`).style.display = "none";
+  document.getElementById(`team-view-${id}`).style.display = "block";
+  document.getElementById(`team-edit-${id}`).style.display = "none";
+}
+async function removeMemberFromView(teamId, userId, teamName) {
+  const confirmed = await customConfirm(
+    "Remove team member?",
+    "This user will be removed from the team."
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/team/${teamId}/remove-user/${userId}`, {
+      method: "DELETE",
+      headers: headers()
+    });
+
+    if (res.status === 401) {
+      handleLogout();
+      return;
+    }
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast(data.message || "Member removed successfully");
+      loadTeams();
+      viewTeam(teamId, teamName); // refresh modal
+    } else {
+      showToast(data.message || "Failed to remove member", "error");
+    }
+
+  } catch (err) {
+    showToast("Network error", "error");
+  }
+}
+
+async function saveTeam(id) {
+  const name = document.getElementById(`team-input-${id}`).value.trim();
+
+  if (!name) return showToast("Team name cannot be empty", "error");
+
+  try {
+    const res = await fetch(API_BASE + "/team/" + id, {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({ name })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast("Team updated");
+      loadTeams();
+    } else {
+      showToast(data.message || "Update failed", "error");
+    }
+
+  } catch {
+    showToast("Network error", "error");
+  }
+}
+
+
+// DELETE TEAM
+async function deleteTeam(id, name) {
+  const confirmed = await customConfirm(
+    `Delete "${name}"?`,
+    "This cannot be undone"
+  );
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(API_BASE + "/team/" + id, {
+      method: "DELETE",
+      headers: headers()
+    });
+
+    if (res.ok) {
+      showToast("Team deleted");
+      loadTeams();
+    } else {
+      const err = await res.json();
+      showToast(err.message, "error");
+    }
+
+  } catch {
+    showToast("Network error", "error");
+  }
+}
+
+
+// ADD USER TO TEAM
+async function addUserToTeam() {
+  const teamId = document.getElementById("teamSelect").value;
+  const userId = document.getElementById("userSelect").value;
+
+  if (!teamId || !userId) {
+    return showToast("Please select a team and a user", "error");
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/team/${teamId}/add-user/${userId}`, {
+      method: "POST",
+      headers: headers()
+    });
+
+    if (res.status === 401) { handleLogout(); return; }
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast(data.message || "User added successfully");
+      loadTeams();
+    } else {
+      showToast(data.message || "Failed to add user", "error");
+    }
+
+  } catch {
+    showToast("Network error", "error");
+  }
+}
+
+
+
+</script>
+</body>
+</html>

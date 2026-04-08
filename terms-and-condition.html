@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms & Conditions | MediWard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    font-family: system-ui;
+    background:#f5f7fb;
+}
+
+
+
+.header{
+    background:#2563eb;
+    color:black;
+    padding:40px;
+    text-align:center;
+}
+
+.terms-container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:40px;
+    margin-top:-40px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.terms-box{
+    height:350px;
+    overflow-y:auto;
+    border:1px solid #e5e7eb;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.accept-section{
+    border-top:1px solid #eee;
+    padding-top:20px;
+}
+
+button{
+    width:100%;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>MediWard</h2>
+<p>Terms & Conditions / GDPR Compliance</p>
+</div>
+
+<div class="terms-container">
+
+<h3 class="mb-4">Terms of Service & Privacy Notice</h3>
+
+<div class="terms-box" id="termsBox">
+
+<h5>1. Introduction</h5>
+<p>
+These Terms and Conditions govern the use of the MediWard and its related services.
+By accessing this system, you agree to comply with all applicable European laws including
+the General Data Protection Regulation (GDPR).
+</p>
+
+<h5>2. Data Controller</h5>
+<p>
+The platform operator acts as the data controller responsible for the processing
+of personal data within the system.
+</p>
+
+<h5>3. Personal Data Collection</h5>
+<p>
+We may collect personal information such as:
+</p>
+<ul>
+<li>Name and identification details</li>
+<li>Email addresses</li>
+<li>Authentication credentials</li>
+<li>Usage and audit logs</li>
+<li>IP addresses</li>
+</ul>
+
+<p>
+This information is collected only for legitimate purposes including
+system security, authentication, and service improvement.
+</p>
+
+<h5>4. GDPR Rights of Users</h5>
+<p>Under GDPR you have the following rights:</p>
+
+<ul>
+<li>Right to access your personal data</li>
+<li>Right to rectification of inaccurate data</li>
+<li>Right to erasure ("Right to be forgotten")</li>
+<li>Right to restrict processing</li>
+<li>Right to data portability</li>
+<li>Right to object to processing</li>
+</ul>
+
+<p>
+Requests related to these rights can be submitted to the data controller
+via the contact information provided below.
+</p>
+
+<h5>5. Data Retention</h5>
+<p>
+Personal data will only be retained for as long as necessary to fulfill
+the purposes for which it was collected or to comply with legal obligations
+within the European Union.
+</p>
+
+<h5>6. Cookies</h5>
+<p>
+This platform may use essential cookies required for authentication,
+session management, and security purposes.
+Optional tracking cookies are only enabled after explicit user consent.
+</p>
+
+<h5>7. Security</h5>
+<p>
+We implement industry-standard technical and organisational measures
+to protect personal data including encryption, secure authentication,
+and restricted system access.
+</p>
+
+<h5>8. Acceptable Use</h5>
+<p>
+Users must not misuse the platform. Prohibited activities include:
+</p>
+
+<ul>
+<li>Unauthorized access attempts</li>
+<li>System exploitation</li>
+<li>Data scraping</li>
+<li>Disruption of service</li>
+</ul>
+
+<h5>9. Limitation of Liability</h5>
+<p>
+The platform operator shall not be held liable for indirect damages,
+service interruptions, or data loss resulting from external factors
+beyond reasonable control.
+</p>
+
+<h5>10. Changes to Terms</h5>
+<p>
+These terms may be updated periodically to remain compliant with
+European legal requirements. Continued use of the platform
+constitutes acceptance of the revised terms.
+</p>
+
+<h5>11. Contact Information</h5>
+<p>
+For GDPR requests or privacy inquiries please contact:
+</p>
+
+<p>
+Data Protection Officer (DPO)<br>
+Email: privacy@mediward.eu
+</p>
+
+</div>
+
+<!-- <div class="accept-section">
+
+<div class="form-check mb-3">
+<input class="form-check-input" type="checkbox" id="acceptCheck">
+<label class="form-check-label">
+I have read and agree to the Terms & Conditions and GDPR policy.
+</label>
+</div>
+
+<button id="acceptBtn" class="btn btn-primary" disabled>
+Accept & Continue
+</button> -->
+
+</div>
+
+</div>
+
+<script>
+
+const checkbox = document.getElementById("acceptCheck");
+const button = document.getElementById("acceptBtn");
+
+checkbox.addEventListener("change", function(){
+    button.disabled = !this.checked;
+});
+
+button.addEventListener("click", function(){
+    
+    localStorage.setItem("termsAccepted","true");
+
+    window.location.href="dashboard.html";
+
+});
+
+</script>
+
+</body>
+</html>

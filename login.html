@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | MediWard Clinical Portal</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root { --primary:#2563eb; --dark:#0f172a; --soft-bg:#f8fafc; }
+
+body {
+  font-family:'Poppins',sans-serif;
+  background:white;
+}
+
+/* NAVBAR */
+.navbar{
+  background:rgba(230,233,255,0.85);
+  backdrop-filter:blur(14px);
+}
+
+/* MAIN LAYOUT */
+.split-screen {
+  display:flex;
+  min-height:calc(100vh - 80px);
+}
+
+/* LEFT SIDE */
+.left-side{
+flex:1.2;
+background:linear-gradient(to right,
+rgba(15,23,42,0.9) 0%,
+rgba(15,23,42,0.4) 50%,
+rgba(15,23,42,0.1) 100%),
+url('https://st.depositphotos.com/1907633/2184/i/450/depositphotos_21841631-stock-photo-success-smart-medical-doctor-with.jpg');
+background-size:cover;
+background-position:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+padding:80px;
+color:white;
+background-blend-mode:multiply;
+}
+
+/* RIGHT SIDE */
+.right-side{
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:40px;
+background:var(--soft-bg);
+}
+
+.auth-box{
+width:100%;
+max-width:480px;
+}
+
+/* FORM */
+.form-control{
+border-radius:12px;
+padding:12px;
+border:1px solid #e2e8f0;
+}
+
+.btn-auth{
+background:var(--primary);
+color:white;
+border:none;
+padding:14px;
+border-radius:12px;
+font-weight:700;
+width:100%;
+margin-top:10px;
+}
+
+.alert-custom{
+display:none;
+border-radius:12px;
+padding:12px;
+font-size:13px;
+font-weight:600;
+margin-bottom:20px;
+}
+
+@media (max-width:992px){
+.left-side{ display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="index.html">
+      <img src="image/logo mediward.png" style="height:48px; margin-right:10px;">
+      <span class="fw-bold text-primary">MediWard</span>
+    </a>
+
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto fw-semibold align-items-center">
+
+        <li class="nav-item">
+          <a class="nav-link px-3" href="index.html">
+            <i class="fa-solid fa-microchip me-1"></i>Home
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3" href="about-us.html">
+            <i class="fa-solid fa-circle-info me-1"></i>About Us
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3" href="compliance.html">
+            <i class="fa-solid fa-shield-halved me-1"></i>Compliance
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3" href="contact-us.html">
+            <i class="fa-solid fa-phone me-1"></i>Contact Us
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3 active" href="#">
+            <i class="fa-solid fa-arrow-right-to-bracket me-1"></i>Login
+          </a>
+        </li>
+
+        <li class="nav-item ms-lg-3">
+          <div class="dropdown">
+            <button class="btn btn-primary rounded-pill px-4 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-right-to-bracket me-2"></i>
+              Signup
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-4">
+              <li>
+                <a class="dropdown-item rounded-3 py-2" href="patient-signup.html">
+                  Patient Signup
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item rounded-3 py-2" href="staff-signup.html">
+                  Staff Signup
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="split-screen">
+
+<div class="left-side">
+<div class="mb-5">
+<img src="image/logo mediward.png" style="height:50px;filter:brightness(0) invert(1);">
+</div>
+
+<h1 class="display-4 fw-800 mb-4">
+Your Health,<br>Our Priority.
+</h1>
+
+<p class="lead opacity-75 mb-5">
+A secure clinical gateway for hospital staff to manage patient observations efficiently.
+</p>
+</div>
+
+<div class="right-side">
+<div class="auth-box">
+
+<div id="authAlert" class="alert-custom"></div>
+
+<div id="loginPane">
+<form onsubmit="handleLogin(event)">
+
+<div class="mb-3">
+<label class="small fw-bold mb-2">Email Address</label>
+<input type="email" id="loginEmail" class="form-control" required>
+</div>
+
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<label class="small fw-bold mb-2">Password</label>
+<a href="#" class="small text-primary text-decoration-none fw-bold" onclick="showForgot()">
+Forgot password?
+</a>
+</div>
+<input type="password" id="loginPass" class="form-control" required>
+</div>
+
+<button class="btn-auth" type="submit">Login</button>
+
+</form>
+</div>
+
+<div id="forgotPane" style="display:none;">
+
+<div class="text-center">
+<h5 class="fw-800">Reset Password</h5>
+<p class="small text-muted mb-4">
+Enter your email and we'll send a recovery link.
+</p>
+</div>
+
+<form onsubmit="handleForgot(event)">
+<input type="email" id="forgotEmail" class="form-control mb-3" placeholder="email@address.com" required>
+
+<button type="submit" class="btn-auth">Send Recovery Email</button>
+
+<button type="button"
+class="btn btn-link w-100 mt-2 text-decoration-none small"
+onclick="showLogin()">
+Back to Login
+</button>
+</form>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+const authAlert = document.getElementById('authAlert');
+const API_BASE = "http://localhost:3000/auth";
+
+function showAlert(msg, type) {
+  authAlert.style.display = 'block';
+  authAlert.innerText = msg;
+  authAlert.style.background = type === 'error' ? '#fff5f5' : '#f0fff4';
+  authAlert.style.color = type === 'error' ? '#c53030' : '#22543d';
+}
+
+function hideAlert() {
+  authAlert.style.display = 'none';
+  authAlert.innerText = '';
+}
+
+function isUnverifiedMessage(message) {
+  if (!message) return false;
+  const msg = Array.isArray(message) ? message.join(' ').toLowerCase() : String(message).toLowerCase();
+
+  return (
+    msg.includes('not verified') ||
+    msg.includes('unverified') ||
+    msg.includes('verify') ||
+    msg.includes('inactive') ||
+    msg.includes('account not active')
+  );
+}
+
+async function triggerResendOtp(email) {
+  const response = await fetch(`${API_BASE}/resend-otp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(result.message || "Failed to resend OTP.");
+  }
+
+  return result;
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  hideAlert();
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+
+  if (!email || !password) {
+    showAlert("Please enter email and password.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const message = data.message || "Login failed.";
+
+      if (isUnverifiedMessage(message)) {
+        localStorage.setItem("verificationEmail", email);
+
+        try {
+          await triggerResendOtp(email);
+          showAlert("Your account is not verified. A new OTP has been sent. Redirecting to verification page...", "success");
+        } catch (otpError) {
+          showAlert((otpError.message || "Your account is not verified. Redirecting to verification page..."), "error");
+        }
+
+        setTimeout(() => {
+          window.location.href = "verification.html";
+        }, 1200);
+
+        return;
+      }
+
+      showAlert(Array.isArray(message) ? message[0] : message, "error");
+      return;
+    }
+
+    const token = data.accessToken;
+    const user = data.user;
+
+    if (!token || !user?.role) {
+      showAlert("Login response is incomplete. Role not found.", "error");
+      return;
+    }
+
+    localStorage.setItem("mediward_token", token);
+    localStorage.setItem("mediward_user_role", user.role);
+    localStorage.setItem("mediward_user", JSON.stringify(user));
+
+    showAlert("Login successful. Redirecting...", "success");
+
+    const role = user.role;
+
+    setTimeout(() => {
+      if (role === "Nurse" || role === "NURSE") {
+        window.location.href = "nurse-dashboard.html";
+      } else if (role === "Patient" || role === "PATIENT") {
+        window.location.href = "patient-dashboard.html";
+      } else if (role === "Doctor" || role === "DOCTOR") {
+        window.location.href = "doctor-dashboard.html";
+      } else {
+        showAlert("Unknown user role: " + role, "error");
+      }
+    }, 700);
+
+  } catch (err) {
+    showAlert("Network error. Please try again.", "error");
+  }
+}
+
+async function handleForgot(e) {
+  e.preventDefault();
+  const email = document.getElementById('forgotEmail').value.trim();
+
+  if (!email) {
+    showAlert("Please enter your email.", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAlert(result.message || "Failed to send reset link.", "error");
+      return;
+    }
+
+    showAlert(result.message || "Reset link sent to your email.", "success");
+  } catch (error) {
+    showAlert("Unable to connect to server. Please try again.", "error");
+  }
+}
+
+function showForgot() {
+  hideAlert();
+  document.getElementById('loginPane').style.display = 'none';
+  document.getElementById('forgotPane').style.display = 'block';
+}
+
+function showLogin() {
+  hideAlert();
+  document.getElementById('loginPane').style.display = 'block';
+  document.getElementById('forgotPane').style.display = 'none';
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

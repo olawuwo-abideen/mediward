@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediWard | Intelligent Healthcare Platform</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  background:#f3f8ff;
+  overflow-x:hidden;
+}
+
+/* SPLASH */
+#splash{
+  position:fixed; inset:0;
+  background:white;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:9999;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+.logo-box{
+  width:80px;height:80px;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-size:36px;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(.9)}
+  50%{transform:scale(1.05)}
+  100%{transform:scale(.9)}
+}
+
+/* NAVBAR */
+.navbar{
+  background:rgba(230, 233, 255, 0.85);
+  backdrop-filter:blur(14px);
+}
+.nav-link i{
+  margin-right:6px;
+}
+/* HERO SECTION - ALWAYS VISIBLE */
+.hero {
+  background: #ffffff; 
+  padding: 160px 0 100px; /* Increased top padding for better breathing room */
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+  display: block; /* Ensures it renders immediately */
+}
+
+.hero-content {
+  padding-right: 40px;
+}
+
+.hero h1 {
+  font-size: 4rem; /* Modern, large size */
+  font-weight: 850;
+  color: #0f172a;
+  line-height: 1.1;
+  margin-bottom: 25px;
+  letter-spacing: -2px;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: #475569;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* Image Styling */
+.hero-image-container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-img {
+  width: 100%;
+  border-radius: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  /* Added a subtle float animation just for visual interest, not hidden */
+  animation: floatImage 6s ease-in-out infinite;
+}
+
+@keyframes floatImage {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Stats Badge - Always Visible */
+.stats-badge {
+  position: absolute;
+  bottom: 30px;
+  left: -30px;
+  background: white;
+  padding: 18px 25px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 2;
+  border: 1px solid #f1f5f9;
+}
+
+/* SECTION */
+.section{padding:100px 0}
+
+/* CARDS */
+.card-modern{
+  border-radius:18px;
+  border:none;
+  padding:35px;
+  background:white;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  transition:.4s;
+}
+.card-modern:hover{
+  transform:translateY(-10px);
+  box-shadow:0 20px 40px rgba(0,0,0,.1);
+}
+
+/* ICON CIRCLE */
+.icon-circle{
+  width:70px;height:70px;
+  border-radius:50%;
+  background:#e0f2fe;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:#0284c7;
+  margin-bottom:20px;
+}
+
+/* DEPARTMENT CARDS */
+.dept-card{
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  transition:.4s;
+}
+.dept-card:hover{
+  transform:translateY(-8px);
+}
+
+/* TIMELINE */
+.timeline-step{
+  text-align:center;
+  padding:20px;
+}
+.timeline-step i{
+  font-size:40px;
+  color:#2563eb;
+  margin-bottom:15px;
+}
+
+/* TESTIMONIAL SLIDER */
+.testimonial-slider{
+  display:flex;
+  gap:20px;
+  overflow:hidden;
+  position:relative;
+}
+.testimonial-track{
+  display:flex;
+  gap:20px;
+  animation:scroll 25s linear infinite;
+}
+@keyframes scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+.testimonial-card{
+  min-width:260px;
+  max-width:280px;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+}
+
+/* FAQ */
+.accordion-button:not(.collapsed){
+  background:#e0f2fe;
+  color:#0f172a;
+}
+/* SECTION SPACING */ .newsletter-section { margin-top: 0px; } /* CLEAN WHITE CARD */ .newsletter-box { background: #c7dbff; padding: 40px; border-radius: 22px; box-shadow: 0 12px 35px rgba(0,0,0,.07); position: relative; border: 1px solid #f1f5f9; } /* INPUT GROUP — MODERN BLUE GLASS */ .newsletter-input { display: flex; align-items: center; background: rgba(37, 99, 235, 0.08); /* soft blue tint */ border-radius: 16px; padding: 8px; border: 1px solid rgba(37, 99, 235, 0.15); backdrop-filter: blur(6px); } /* INPUT FIELD */ .newsletter-input input { border: none; background: transparent; padding: 14px; font-size: 15px; flex: 1; color: #0f172a; } .newsletter-input input::placeholder { color: #64748b; } .newsletter-input input:focus { outline: none; } /* SUBMIT BUTTON — PREMIUM PILL */ .btn-submit { background: var(--primary); color: white; border: none; padding: 12px 26px; border-radius: 14px; font-weight: 600; font-size: 15px; transition: 0.25s ease; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); } .btn-submit:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); } /* ERROR MESSAGE */ .error-msg { display: none; color: #dc2626; font-size: 13px; margin-top: 6px; } /* SUCCESS POPUP */ .success-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: white; padding: 40px; border-radius: 22px; box-shadow: 0 25px 60px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; text-align: center; display: none; opacity: 0; transition: opacity 0.4s, transform 0.3s; z-index: 9999; } /* SUCCESS ICON */ .icon-circle { background:#e8fff1; color:#16a34a; width:65px; height:65px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:26px; box-shadow: 0 4px 12px rgba(22,163,74,0.25); }/* FOOTER */
+.footer{
+  background:#0f172a;
+  color:#94a3b8;
+}
+.footer a{color:#94a3b8;text-decoration:none}
+.footer a:hover{color:white}
+.footer-icon{
+  margin-right:8px;
+}
+
+/* CHATBOT FLOATING BUTTON */
+.chatbot {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #2563eb;
+  color: white !important; /* Ensures icon stays white */
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+  text-decoration: none; /* Removes underline from link */
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.chatbot:hover {
+  transform: scale(1.1);
+  background: #1d4ed8;
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.5);
+}
+
+/* PULSE ANIMATION */
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #2563eb;
+  animation: chatPulse 2s infinite;
+}
+
+@keyframes chatPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* TOOLTIP */
+.chat-tooltip {
+  position: absolute;
+  right: 80px;
+  background: #0f172a;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+}
+
+.chatbot:hover .chat-tooltip {
+  opacity: 1;
+  visibility: visible;
+  right: 75px;
+}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(40px);transition:1s}
+.reveal.active{opacity:1;transform:none}
+
+ /* COOKIE BANNER
+ .uk-cookie {
+            position: fixed; bottom: 30px; left: 30px; width: 380px; background: white;
+            border-radius: 24px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            z-index: 9999; display: none; border: 1px solid #eee;
+        } */
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<!-- <div id="splash">
+  <img src="image/logo mediward.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
+  <h3 class="fw-bold">MediWard</h3>
+  <p class="text-muted">Loading clinical environment...</p>
+</div> -->
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="index.html">
+      <img src="image/logo mediward.png" alt="Logo" style="height:48px; margin-right:10px;">
+      <span class="fw-bold text-primary">MediWard</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto fw-semibold align-items-center">
+                <li class="nav-item"><a class="nav-link px-3" href="index.html"><i class="fa-solid fa-microchip"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="./about-us.html"><i class="fa-solid fa-circle-info"></i>About Us</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="./compliance.html"><i class="fa-solid fa-shield-halved"></i>Compliance</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="./contact-us.html"><i class="fa-solid fa-phone"></i>Contact Us</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="./login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i>Login</a></li>
+        <li class="nav-item ms-lg-3">
+            <div class="dropdown">
+                <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Signup
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-4">
+                    <li><a class="dropdown-item rounded-3 py-2" href="patient-signup.html">Patient Signup</a></li>
+                    <li><a class="dropdown-item rounded-3 py-2" href="staff-signup.html">Staff Signup</a></li>
+                </ul>
+            </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="row align-items-center">
+      
+      <div class="col-lg-6 hero-content">
+        <div class="badge px-3 py-2 rounded-pill mb-3" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">
+          <i class="fa-solid fa-bolt me-2"></i> Next-Gen Ward Management
+        </div>
+        <h1>Smarter Care.<br><span>Intelligence</span> Driven.</h1>
+        <p>MediWard empowers clinical teams with real-time AI insights, reducing response times and improving patient outcomes through automated ward intelligence.</p>
+        
+        <div class="d-flex gap-3">
+          <a href="#" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-lg">Get Started</a>
+          <a href="#" class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3">
+            <i class="fa-solid fa-play me-2"></i> Watch Demo
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="hero-image-container">
+          <img src="https://media.istockphoto.com/id/1496103633/photo/doctor-woman-and-tablet-in-hospital-with-holographic-ux-for-telehealth-medical-innovation-and.jpg?b=1&s=612x612&w=0&k=20&c=EKbaIZb1Q7GoEerJYSblA62vuzjM9EQDIVVvWHPS9po=" class="hero-img" alt="Digital Healthcare Interface">
+          
+          <div class="stats-badge">
+            <div class="icon-circle mb-0" style="width:50px; height:50px; background:#22c55e; color:white;">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold">99.9% Accuracy</h6>
+              <small class="text-muted">In Clinical Monitoring</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section reveal">
+<div class="container text-center">
+  <h2 class="fw-bold mb-5">Core Intelligence Features</h2>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card-modern">
+        <div class="icon-circle"><i class="fa-solid fa-bed"></i></div>
+        <h5>Ward Monitoring</h5>
+        <p class="text-muted">Live bed status, patient vitals, and automated alerts.</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card-modern">
+        <div class="icon-circle"><i class="fa-solid fa-file-medical"></i></div>
+        <h5>Digital Records</h5>
+        <p class="text-muted">Secure EHR with instant access for clinicians.</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card-modern">
+        <div class="icon-circle"><i class="fa-solid fa-bell"></i></div>
+        <h5>Smart Alerts</h5>
+        <p class="text-muted">AI-driven notifications for emergencies and workflow.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SOLUTIONS -->
+<section class="section bg-white reveal">
+<div class="container text-center">
+  <h2 class="fw-bold mb-5">End-to-End Hospital Solutions</h2>
+
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card-modern">
+        <i class="fa-solid fa-user-doctor fa-2x text-primary mb-3"></i>
+        <h6>Clinical Dashboard</h6>
+        <p class="small text-muted">Unified view for doctors and nurses.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card-modern">
+        <i class="fa-solid fa-laptop-medical fa-2x text-primary mb-3"></i>
+        <h6>Telehealth</h6>
+        <p class="small text-muted">Remote consultations and follow-ups.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card-modern">
+        <i class="fa-solid fa-chart-line fa-2x text-primary mb-3"></i>
+        <h6>Analytics</h6>
+        <p class="small text-muted">Operational insights and performance metrics.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card-modern">
+        <i class="fa-solid fa-shield-halved fa-2x text-primary mb-3"></i>
+        <h6>Security</h6>
+        <p class="small text-muted">GDPR, NHS DSPT, and ISO compliance.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- DEPARTMENTS -->
+<section class="section reveal">
+<div class="container text-center">
+  <h2 class="fw-bold mb-5">Departments We Support</h2>
+
+  <div class="row g-4">
+    <div class="col-md-3"><div class="dept-card"><i class="fa-solid fa-heart-pulse fa-2x text-danger mb-3"></i><h6>Cardiology</h6></div></div>
+    <div class="col-md-3"><div class="dept-card"><i class="fa-solid fa-brain fa-2x text-primary mb-3"></i><h6>Neurology</h6></div></div>
+    <div class="col-md-3"><div class="dept-card"><i class="fa-solid fa-baby fa-2x text-warning mb-3"></i><h6>Maternity</h6></div></div>
+    <div class="col-md-3"><div class="dept-card"><i class="fa-solid fa-x-ray fa-2x text-success mb-3"></i><h6>Radiology</h6></div></div>
+  </div>
+</div>
+</section>
+
+<!-- HEALTH NEWS -->
+<section class="section bg-white reveal">
+<div class="container">
+  <h2 class="fw-bold text-center mb-5">Health News & Updates</h2>
+
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <div class="card-modern">
+        <img src="https://via.placeholder.com/500x250" class="img-fluid rounded mb-3" alt="">
+        <h5>AI Reducing Patient Wait Times</h5>
+        <p class="text-muted small">New predictive tools improve discharge efficiency across NHS hospitals.</p>
+        <a href="#" class="text-primary fw-semibold">Read More →</a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card-modern">
+        <img src="https://via.placeholder.com/500x250" class="img-fluid rounded mb-3" alt="">
+        <h5>Telehealth Expansion Across UK</h5>
+        <p class="text-muted small">Remote care improving rural access and reducing hospital load.</p>
+        <a href="#" class="text-primary fw-semibold">Read More →</a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card-modern">
+        <img src="https://via.placeholder.com/500x250" class="img-fluid rounded mb-3" alt="">
+        <h5>NHS Digital Transformation</h5>
+        <p class="text-muted small">Hospitals adopting intelligent systems for safer patient care.</p>
+        <a href="#" class="text-primary fw-semibold">Read More →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- HOW MEDIWARD WORKS -->
+<section class="section bg-white reveal">
+<div class="container text-center">
+  <h2 class="fw-bold mb-5">How MediWard Works</h2>
+
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="timeline-step">
+        <i class="fa-solid fa-user-plus"></i>
+        <h6>1. Patient Admission</h6>
+        <p class="text-muted small">Digital onboarding and automated record creation.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="timeline-step">
+        <i class="fa-solid fa-heart-circle-bolt"></i>
+        <h6>2. Real-Time Monitoring</h6>
+        <p class="text-muted small">Vitals, alerts, and ward status updates.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="timeline-step">
+        <i class="fa-solid fa-brain"></i>
+        <h6>3. Clinical Decision Support</h6>
+        <p class="text-muted small">AI insights for safer, faster decisions.</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="timeline-step">
+        <i class="fa-solid fa-file-waveform"></i>
+        <h6>4. Discharge & Reporting</h6>
+        <p class="text-muted small">Automated summaries and analytics.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- TESTIMONIAL SLIDER -->
+<section class="section reveal">
+<div class="container text-center">
+  <h2 class="fw-bold mb-5">What Healthcare Professionals Say</h2>
+
+  <div class="testimonial-slider">
+    <div class="testimonial-track">
+
+      <!-- 10 testimonial cards -->
+      <div class="testimonial-card"><p>“Improved patient safety across all wards.”</p><strong>- Clinical Director</strong></div>
+      <div class="testimonial-card"><p>“Reduced waiting times significantly.”</p><strong>- NHS Manager</strong></div>
+      <div class="testimonial-card"><p>“The AI alerts are life-saving.”</p><strong>- Senior Nurse</strong></div>
+      <div class="testimonial-card"><p>“Easy to use and very reliable.”</p><strong>- Ward Supervisor</strong></div>
+      <div class="testimonial-card"><p>“Telehealth integration is excellent.”</p><strong>- GP Consultant</strong></div>
+      <div class="testimonial-card"><p>“Analytics improved our workflow.”</p><strong>- Operations Lead</strong></div>
+      <div class="testimonial-card"><p>“Staff adoption was quick and smooth.”</p><strong>- HR Manager</strong></div>
+      <div class="testimonial-card"><p>“A complete hospital solution.”</p><strong>- IT Director</strong></div>
+      <div class="testimonial-card"><p>“Highly secure and compliant.”</p><strong>- Data Officer</strong></div>
+      <div class="testimonial-card"><p>“Best digital transformation tool.”</p><strong>- NHS Trust Lead</strong></div>
+
+      <!-- Duplicate for infinite scroll -->
+      <div class="testimonial-card"><p>“Improved patient safety across all wards.”</p><strong>- Clinical Director</strong></div>
+      <div class="testimonial-card"><p>“Reduced waiting times significantly.”</p><strong>- NHS Manager</strong></div>
+      <div class="testimonial-card"><p>“The AI alerts are life-saving.”</p><strong>- Senior Nurse</strong></div>
+      <div class="testimonial-card"><p>“Easy to use and very reliable.”</p><strong>- Ward Supervisor</strong></div>
+
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="section bg-white reveal">
+<div class="container">
+  <h2 class="fw-bold text-center mb-5">Frequently Asked Questions</h2>
+
+  <div class="accordion" id="faqAccordion">
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+          Is MediWard NHS compliant?
+        </button>
+      </h2>
+      <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Yes, MediWard is fully aligned with GDPR, NHS DSPT, and ISO 27001 standards.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+          Can MediWard integrate with existing hospital systems?
+        </button>
+      </h2>
+      <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Yes, MediWard supports HL7, FHIR, and custom API integrations.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+          Is training provided?
+        </button>
+      </h2>
+      <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          We offer full onboarding, staff training, and 24/7 support.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+          Does MediWard support mobile devices?
+        </button>
+      </h2>
+      <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Yes, MediWard works on all mobile, tablet, and desktop devices.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+          How secure is patient data?
+        </button>
+      </h2>
+      <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          All data is encrypted, access-controlled, and monitored with AI threat detection.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- NEWSLETTER (JUST BEFORE FOOTER) -->
+<section class="newsletter-section">
+  <div class="newsletter-box">
+      <div class="row align-items-center">
+          <div class="col-lg-6 mb-3 mb-lg-0">
+              <h4 class="fw-bold mb-1">Clinical Updates</h4>
+              <p class="text-muted small mb-0">Join our medical network for IWMS protocols.</p>
+          </div>
+
+          <div class="col-lg-6">
+              <div class="newsletter-input">
+                  <input type="email" id="email-input" class="form-control" placeholder="hospital-email@med.com">
+                  <button class="btn-submit" onclick="validateAndSubmit()">Submit</button>
+              </div>
+              <div id="error-msg" class="error-msg">Please enter a valid email address.</div>
+          </div>
+      </div>
+  </div>
+
+  <div id="success-popup" class="success-popup">
+      <div class="icon-circle"><i class="fa-solid fa-check"></i></div>
+      <h4 class="fw-bold mt-3">Thanks for subscribing!</h4>
+      <p class="text-muted mb-0">You are now part of the MediWard Intelligence network.</p>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section class="section text-center text-white" style="background:linear-gradient(135deg,#1e40af,#0ea5e9);">
+<div class="container">
+  <h2>Transform Your Hospital Today</h2>
+  <a class="btn btn-light btn-lg rounded-pill px-5 mt-3" href="#">Schedule Consultation</a>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer pt-5 pb-4">
+<div class="container">
+  <div class="row">
+
+    <div class="col-md-3">
+      <h5 class="text-white">MediWard</h5>
+      <p>Enterprise platform improving patient safety and operational efficiency.</p>
+    </div>
+
+    <div class="col-md-3">
+      <h6 class="text-white">Solutions</h6>
+      <p><i class="fa-solid fa-user-doctor footer-icon"></i>Patient Portal</p>
+      <p><i class="fa-solid fa-laptop-medical footer-icon"></i>Staff Dashboard</p>
+      <p><i class="fa-solid fa-video footer-icon"></i>Telehealth</p>
+      <p><i class="fa-solid fa-chart-line footer-icon"></i>Analytics</p>
+    </div>
+
+    <div class="col-md-3">
+      <h6 class="text-white">Compliance</h6>
+      <p><i class="fa-solid fa-shield-halved footer-icon"></i>GDPR</p>
+      <p><i class="fa-solid fa-file-contract footer-icon"></i>NHS DSPT</p>
+      <p><i class="fa-solid fa-lock footer-icon"></i>ISO 27001</p>
+      <p><i class="fa-solid fa-user-shield footer-icon"></i>Security</p>
+    </div>
+
+    <div class="col-md-3">
+      <h6 class="text-white">Contact</h6>
+      <p><i class="fa-solid fa-location-dot footer-icon"></i>Bristol, UK</p>
+      <p><i class="fa-solid fa-envelope footer-icon"></i>support@mediward.ai</p>
+      <p><i class="fa-solid fa-phone footer-icon"></i>Emergency: 999</p>
+
+      <div class="mt-3">
+        <a href="#"><i class="fa-brands fa-facebook fa-lg me-3"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter fa-lg me-3"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin fa-lg me-3"></i></a>
+        <a href="#"><i class="fa-brands fa-instagram fa-lg"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <div class="text-center mt-4 border-top border-secondary pt-3" style="opacity: 0.7;">
+    <p class="mb-1 small">© 2026 MediWard Intelligent Ward Management System</p>
+    <p class="mb-0" style="font-weight: 300; letter-spacing: 2px; font-size: 14px; text-transform: uppercase;">
+        Designed by <span class="text-primary" style="font-weight: 500;">MEDIWARD TEAM</span>
+    </p>
+</div>
+</div>
+</footer>
+
+<!-- CHATBOT -->
+<!-- <a href="chat.html" class="chatbot" aria-label="Launch AI Assistant">
+  <div class="pulse-ring"></div>
+  <i class="fa-solid fa-comment-medical"></i>
+  <span class="chat-tooltip">AI Support</span>
+</a> -->
+
+<!-- <div id="cookieJar" class="uk-cookie" role="alert" aria-live="assertive">
+  <h6 class="fw-800 mb-2">Cookie Privacy</h6>
+  <p class="small text-muted">We use essential cookies for system security. Allow optional performance analytics?</p>
+  <div class="d-flex gap-2 mt-4">
+      <button class="btn btn-dark w-100 rounded-pill btn-sm" onclick="acceptCookies()">Accept All</button>
+      <button class="btn btn-outline-secondary w-100 rounded-pill btn-sm" onclick="acceptCookies()">Essential Only</button>
+  </div>
+</div> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Splash fade out
+setTimeout(()=>{
+  const splash=document.getElementById('splash');
+  splash.style.opacity='0';
+  splash.style.visibility='hidden';
+},1500);
+
+// Reveal on scroll
+const reveals=document.querySelectorAll('.reveal');
+window.addEventListener('scroll',()=>{
+  reveals.forEach(el=>{
+    if(el.getBoundingClientRect().top < window.innerHeight-80){
+      el.classList.add('active');
+    }
+  });
+});
+
+
+function validateAndSubmit() {
+    const emailField = document.getElementById('email-input');
+    const errorField = document.getElementById('error-msg');
+    const successPopup = document.getElementById('success-popup');
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (emailPattern.test(emailField.value)) {
+        errorField.style.display = 'none';
+
+        successPopup.style.display = 'block';
+        setTimeout(() => successPopup.style.opacity = '1', 10);
+
+        emailField.value = "";
+
+        setTimeout(() => {
+            successPopup.style.opacity = '0';
+            setTimeout(() => successPopup.style.display = 'none', 400);
+        }, 3000);
+
+    } else {
+        errorField.style.display = 'block';
+    }
+}
+
+</script>
+<script>
+  const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+  });
+  document.querySelectorAll('.reveal').forEach(r => obs.observe(r));
+
+  setTimeout(() => { document.getElementById('cookieJar').style.display = 'block'; }, 2000);
+  function acceptCookies() {
+      document.getElementById('cookieJar').style.opacity = '0';
+      setTimeout(() => { document.getElementById('cookieJar').style.display = 'none'; }, 500);
+  }
+</script>
+
+</body>
+</html>

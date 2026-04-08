@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediWard Patient Portal</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* MEDICATION & HISTORY TABS */
+.history-tabs{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+.history-tab{
+    border:none;
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.history-tab:hover{
+    background:#bfdbfe;
+}
+
+.history-tab.active{
+    background:#2563eb;
+    color:white;
+}
+
+.history-content{
+    display:none;
+}
+
+.history-content.active{
+    display:block;
+}
+
+:root{
+    --primary:#2563eb;
+    --soft-bg:#f8fafc;
+    --error:#ef4444;
+    --success:#10b981;
+    --dark:#0f172a;
+}
+
+body{
+    margin:0;
+    background:#f5f7fb;
+    font-family:Arial, Helvetica, sans-serif;
+    display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:240px;
+    background:#2563eb;
+    height:100vh;
+    padding:20px;
+    color:white;
+    position:fixed;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.sidebar-top h3{
+    margin-bottom:25px;
+}
+
+.sidebar-top a{
+    display:block;
+    padding:12px;
+    color:white;
+    text-decoration:none;
+    margin-bottom:10px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.sidebar-top a:hover,
+.sidebar-top a.active-link{
+    background:rgba(255,255,255,0.2);
+}
+
+.signout{
+    padding:12px;
+    background:#1e4fcf;
+    border-radius:6px;
+    text-align:center;
+    color:white;
+    text-decoration:none;
+    border:none;
+    width:100%;
+}
+
+/* MAIN AREA */
+.main{
+    margin-left:260px;
+    padding:30px;
+    width:100%;
+}
+
+/* SECTIONS */
+.section{
+    display:none;
+}
+.section.active{
+    display:block;
+}
+
+/* SESSION HEADER */
+.session{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:25px;
+    display:flex;
+    justify-content:space-between;
+    box-shadow:0 4px 20px rgba(0,0,0,0.05);
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.session h4{
+    margin:0;
+    font-weight:700;
+}
+
+.session small{
+    color:#6b7280;
+}
+
+.clock{
+    text-align:right;
+    font-weight:bold;
+}
+
+/* GENERAL CARD */
+.card-box{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom:20px;
+}
+
+.vital-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:10px;
+}
+
+.med-box{
+    background:#f9fafb;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.agenda-item{
+    padding:10px;
+    border-radius:10px;
+    background:#f3f4f6;
+    margin-bottom:10px;
+}
+
+/* FORM */
+.form-control,
+.form-select{
+    border-radius:12px;
+    padding:12px;
+    border:1px solid #e2e8f0;
+    font-size:14px;
+}
+
+.btn-update,
+.btn-auth{
+    background:var(--primary);
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    width:100%;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.btn-update:hover,
+.btn-auth:hover{
+    background:#1e4bb8;
+}
+
+.alert-custom{
+    display:none;
+    border-radius:12px;
+    padding:12px;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:20px;
+}
+
+/* PROFILE + PASSWORD FULL SIZE */
+.profile-card,
+.password-wrapper{
+    width:100%;
+    max-width:100%;
+    padding:30px;
+}
+
+.password-wrapper{
+    background:linear-gradient(135deg, #eff6ff, #dbeafe);
+    border:1px solid #bfdbfe;
+}
+
+.password-wrapper h3{
+    color:#1e3a8a;
+    font-weight:700;
+}
+
+.password-wrapper .form-label{
+    color:#1e3a8a;
+    font-weight:600;
+}
+
+.password-wrapper .form-control{
+    background:white;
+    border:1px solid #cbd5e1;
+    color:#0f172a;
+}
+
+.password-wrapper .form-control:focus{
+    border-color:#60a5fa;
+    box-shadow:0 0 0 0.2rem rgba(37,99,235,0.15);
+}
+
+.message{
+    font-size:14px;
+    margin-bottom:15px;
+    min-height:20px;
+    font-weight:600;
+}
+
+.loading-box{
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    font-weight:700;
+    color:#2563eb;
+}
+
+@media (max-width: 992px){
+    .sidebar{
+        width:200px;
+    }
+
+    .main{
+        margin-left:220px;
+    }
+}
+
+@media (max-width: 768px){
+    body{
+        display:block;
+    }
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    .main{
+        margin-left:0;
+        padding:20px;
+    }
+
+    .clock{
+        text-align:left;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="pageLoader" class="loading-box">Loading dashboard...</div>
+
+<div class="sidebar">
+    <div class="sidebar-top">
+        <h3>Patient Dashboard</h3>
+        <a class="active-link" onclick="showSection('dashboard', this)">Dashboard</a>
+        <a onclick="showSection('medication', this)">Medication & History</a>
+        <a onclick="showSection('appointments', this)">Appointments</a>
+        <a onclick="showSection('profile', this)">Profile</a>
+        <a onclick="showSection('password', this)">Change Password</a>
+    </div>
+    <button onclick="signOut()" class="signout">Sign Out</button>
+</div>
+
+<div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+        <div class="session">
+            <div>
+                <h4 id="welcomeText">Welcome Back, Patient</h4>
+                <small id="userMeta">Ward -- | ID: --</small>
+            </div>
+            <div class="clock">
+                <div id="time"></div>
+                <div id="date"></div>
+            </div>
+        </div>
+
+        <h3 class="mb-4">Patient Health Overview</h3>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card-box">
+                    <div class="vital-icon bg-danger-subtle text-danger">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <small>HEART RATE</small>
+                    <h4>78 BPM</h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-box">
+                    <div class="vital-icon bg-warning-subtle text-warning">
+                        <i class="fa-solid fa-temperature-three-quarters"></i>
+                    </div>
+                    <small>TEMPERATURE</small>
+                    <h4>37.2 °C</h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-box">
+                    <div class="vital-icon bg-info-subtle text-info">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <small>OXYGEN</small>
+                    <h4>99%</h4>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-box">
+                    <div class="vital-icon bg-primary-subtle text-primary">
+                        <i class="fa-solid fa-gauge"></i>
+                    </div>
+                    <small>BLOOD PRESSURE</small>
+                    <h4>118 / 79</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card-box">
+                    <h5>Vital Signs Correlation</h5>
+                    <small>Heart Rate vs NEWS2 Risk Score</small>
+                    <canvas id="healthChart"></canvas>
+                    <div class="mt-2 text-muted">
+                        <i class="fa-solid fa-circle text-success"></i> Normalizing
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-box">
+                    <h6><i class="fa-solid fa-pills"></i> Upcoming Medication</h6>
+                    <div class="med-box">
+                        <strong>14:00</strong><br>
+                        Amoxicillin (500mg)
+                    </div>
+                    <div class="med-box">
+                        <strong>18:30</strong><br>
+                        Paracetamol (1g)
+                    </div>
+                </div>
+
+                <div class="card-box">
+                    <h6>Recovery Roadmap</h6>
+                    <strong>Today's Agenda</strong>
+                    <div class="agenda-item">13:00 - Lunch (Low Sodium)</div>
+                    <div class="agenda-item">15:30 - Physio Session</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEDICATION & HISTORY -->
+<div id="medication" class="section">
+    <h2 class="mb-4">Medication & History</h2>
+
+    <div class="card-box">
+        <div class="history-tabs">
+            <button class="history-tab active" onclick="showHistoryTab('medList', this)">Medication List</button>
+            <button class="history-tab" onclick="showHistoryTab('admissionHistory', this)">Admission History</button>
+            <button class="history-tab" onclick="showHistoryTab('dischargeHistory', this)">Discharge History</button>
+            <button class="history-tab" onclick="showHistoryTab('transferHistory', this)">Transfer History</button>
+        </div>
+
+        <div id="historyResult" class="mt-4">
+            <div id="medList" class="history-content active">
+                <h5 class="mb-3">Medication List</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Symptoms</th>
+                                <th>Diagnosis</th>
+                                <th>Medication</th>
+                                <th>Prescription Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicationTableBody">
+                            <tr>
+                                <td colspan="5" class="text-muted text-center"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admissionHistory" class="history-content">
+                <h5 class="mb-3">Admission History</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Reason for Admission</th>
+                                <th>Admission Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admissionHistoryBody">
+                            <tr>
+                                <td colspan="3" class="text-muted text-center">Click Admission History to load records.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="dischargeHistory" class="history-content">
+                <h5 class="mb-3">Discharge History</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Discharge Date</th>
+                                <th>Discharge Reason</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dischargeHistoryBody">
+                            <tr>
+                                <td colspan="4" class="text-muted text-center">Click Discharge History to load records.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="transferHistory" class="history-content">
+                <h5 class="mb-3">Transfer History</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Transfer To</th>
+                                <th>Transfer Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transferHistoryTable">
+                            <tr>
+                                <td colspan="3" class="text-muted text-center">Click Transfer History to load records.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div id="appointments" class="section">
+    <h2>Appointment Booking</h2>
+    <div class="card-box">
+        <div id="appointmentAlert" class="alert-custom"></div>
+
+        <p id="appointmentInfo" class="text-muted"></p>
+
+        <label class="form-label">Select Available Slot</label>
+        <select class="form-select mb-3" id="availabilitySlotSelect">
+            <option value="">Loading available slots...</option>
+        </select>
+
+        <button class="btn btn-primary" id="bookAppointmentBtn" type="button">
+            Book Appointment
+        </button>
+    </div>
+</div>
+
+
+
+<div id="profile" class="section">
+    <h2>Update Profile</h2>
+    <div class="card-box profile-card">
+        <div id="alertMsg" class="alert-custom"></div>
+
+        <form id="updateProfileForm">
+            <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" id="firstname" class="form-control" placeholder="John" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" id="lastname" class="form-control" placeholder="Doe" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" id="dob" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="phonenumber" class="form-control" placeholder="08012345678">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select id="gender" class="form-select">
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-update" id="profileBtn">Update Profile</button>
+        </form>
+    </div>
+</div>
+
+    <!-- PASSWORD -->
+<div id="password" class="section">
+    <div class="card-box password-wrapper">
+        <h3 class="mb-4">Change Password</h3>
+
+        <div id="passwordMessage" class="message"></div>
+
+        <form id="passwordForm">
+            <div class="mb-3">
+                <label class="form-label">Current Password</label>
+                <input type="password" id="currentPassword" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input type="password" id="newPassword" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmPassword" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn-update">Update Password</button>
+        </form>
+    </div>
+</div>
+      
+<script>
+const API_BASE = "http://localhost:3000";
+const PROFILE_ENDPOINT = `${API_BASE}/user`;
+const WARD_ENDPOINT = `${API_BASE}/user/ward`;
+const CHANGE_PASSWORD_ENDPOINT = `${API_BASE}/user/change-password`;
+const TRANSFER_HISTORY_ENDPOINT = `${API_BASE}/user/transfer`;
+const ADMISSION_HISTORY_ENDPOINT = `${API_BASE}/user/admission`;
+const TREATMENT_ENDPOINT = `${API_BASE}/user/treatment`;
+const DISCHARGE_HISTORY_ENDPOINT = `${API_BASE}/user/discharge`;
+const AVAILABILITY_SLOT_ENDPOINT = `${API_BASE}/availabilityslot`;
+const APPOINTMENT_ENDPOINT = `${API_BASE}/appointments`;
+
+const TOKEN_KEY = "mediward_token";
+const USER_KEY = "mediward_user";
+const ROLE_KEY = "mediward_user_role";
+
+let currentUser = null;
+let currentWardName = "--";
+
+function showSection(sectionId, clickedLink){
+    document.querySelectorAll(".section").forEach(section => {
+        section.classList.remove("active");
+    });
+
+    document.getElementById(sectionId).classList.add("active");
+
+    document.querySelectorAll(".sidebar-top a").forEach(link => {
+        link.classList.remove("active-link");
+    });
+
+    if(clickedLink){
+        clickedLink.classList.add("active-link");
+    }
+
+        if (sectionId === "appointments") {
+        loadAvailabilitySlots();
+    }
+}
+
+function showHistoryTab(tabId, clickedBtn){
+    document.querySelectorAll(".history-content").forEach(content => {
+        content.classList.remove("active");
+    });
+
+    document.getElementById(tabId).classList.add("active");
+
+    document.querySelectorAll(".history-tab").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    clickedBtn.classList.add("active");
+
+       if (tabId === "medList") {
+        loadMedicationList();
+    }
+
+    if (tabId === "admissionHistory") {
+        loadAdmissionHistory();
+    }
+
+    if (tabId === "dischargeHistory") {
+        loadDischargeHistory();
+    }
+
+    if (tabId === "transferHistory") {
+        loadTransferHistory();
+    }
+}
+
+
+async function loadAvailabilitySlots() {
+    const select = document.getElementById("availabilitySlotSelect");
+    const info = document.getElementById("appointmentInfo");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Loading available slots...</option>`;
+
+    try {
+        const res = await fetchWithAuth(AVAILABILITY_SLOT_ENDPOINT, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const data = await res.json();
+        // console.log("Availability slots response:", data);
+
+        if (!res.ok) {
+            select.innerHTML = `<option value="">Failed to load available slots</option>`;
+            if (info) info.textContent = data.message || "Failed to load available slots.";
+            return;
+        }
+
+        const slots = data.availabilitySlots || [];
+        const availableSlots = slots.filter(slot => slot.isAvailable === true);
+
+        if (!availableSlots.length) {
+            select.innerHTML = `<option value="">No available slots found</option>`;
+            if (info) info.textContent = "No available appointment slots found.";
+            return;
+        }
+
+        select.innerHTML = `<option value="">Choose available slot</option>`;
+
+        availableSlots.forEach(slot => {
+            const option = document.createElement("option");
+            option.value = slot.id;
+
+            const startDate = new Date(slot.startTime);
+            option.textContent = startDate.toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            option.dataset.startTime = slot.startTime;
+            option.dataset.endTime = slot.endTime;
+
+            select.appendChild(option);
+        });
+
+        // if (info) {
+        //     info.textContent = data.message;
+        // }
+
+    } catch (error) {
+        console.error("Availability slot error:", error);
+        select.innerHTML = `<option value="">Network error loading slots</option>`;
+        if (info) info.textContent = "Network error loading available slots.";
+    }
+}
+
+
+
+async function loadAdmissionHistory() {
+    const tableBody = document.getElementById("admissionHistoryBody");
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="3" class="text-muted text-center">Loading admission history...</td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetchWithAuth(ADMISSION_HISTORY_ENDPOINT, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const result = await res.json();
+        console.log("Admission response:", result);
+
+        if (!res.ok) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-danger text-center">
+                        ${result.message || "Failed to load admission history."}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const admissions = result.admissions || [];
+
+        if (!admissions.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-muted text-center">
+                        No admission history found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = admissions.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.reasonforadmission || '<span class="text-muted">No reason provided</span>'}</td>
+                <td>${formatDateTime(item.admittedAt)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Admission history error:", error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-danger text-center">
+                    Network error loading admission history.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+document.getElementById("bookAppointmentBtn").addEventListener("click", async function () {
+    const button = document.getElementById("bookAppointmentBtn");
+    const select = document.getElementById("availabilitySlotSelect");
+
+    if (!select) return;
+
+    const availabilitySlotId = select.value;
+
+    if (!availabilitySlotId) {
+        showAppointmentAlert("Please select an available slot first.", "error");
+        return;
+    }
+
+    try {
+        button.disabled = true;
+        button.textContent = "Booking...";
+
+        const res = await fetchWithAuth(APPOINTMENT_ENDPOINT, {
+            method: "POST",
+            body: JSON.stringify({
+                availabilitySlotId
+            })
+        });
+
+        if (!res) return;
+
+        const data = await res.json();
+        console.log("Book appointment response:", data);
+
+        if (!res.ok) {
+            showAppointmentAlert(data.message || "Failed to book appointment.", "error");
+            return;
+        }
+
+        showAppointmentAlert(
+            "Appointment booked successfully, you will receive a confirmation email about the details of your appointment.",
+            "success"
+        );
+
+        select.value = "";
+
+        await loadAvailabilitySlots();
+
+    } catch (error) {
+        console.error("Book appointment error:", error);
+        showAppointmentAlert("Network error while booking appointment.", "error");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Book Appointment";
+    }
+});
+
+function showAppointmentAlert(message, type = "success") {
+    const alertBox = document.getElementById("appointmentAlert");
+    if (!alertBox) return;
+
+    alertBox.style.display = "block";
+    alertBox.innerText = message;
+    alertBox.style.padding = "12px";
+    alertBox.style.borderRadius = "10px";
+    alertBox.style.marginBottom = "20px";
+    alertBox.style.fontWeight = "600";
+
+    if (type === "error") {
+        alertBox.style.background = "#fee2e2";
+        alertBox.style.color = "#991b1b";
+        alertBox.style.border = "1px solid #ef4444";
+    } else {
+        alertBox.style.background = "#d1fae5";
+        alertBox.style.color = "#065f46";
+        alertBox.style.border = "1px solid #10b981";
+    }
+
+    setTimeout(() => {
+        alertBox.style.display = "none";
+        alertBox.innerText = "";
+    }, 5000);
+}
+
+
+
+function formatDateTime(dateString) {
+    if (!dateString) return "--";
+
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "--";
+
+    return date.toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+async function loadDischargeHistory() {
+    const tableBody = document.getElementById("dischargeHistoryBody");
+    const token = localStorage.getItem("mediward_token");
+
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="4" class="text-muted text-center">Loading discharge history...</td>
+        </tr>
+    `;
+
+    if (!token) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-danger">No token found. Please login again.</td>
+            </tr>
+        `;
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const res = await fetch(DISCHARGE_HISTORY_ENDPOINT, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem("mediward_token");
+            localStorage.removeItem("mediward_user");
+            localStorage.removeItem("mediward_user_role");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const result = await res.json();
+        console.log("Discharge response:", result);
+
+        if (!res.ok) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        ${result.message || "Failed to load discharge history."}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const discharges = result.data || [];
+
+        if (!discharges.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No discharge history found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = discharges.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${formatDateTime(item.dischargedAt)}</td>
+                <td>${item.dischargeReason || '<span class="text-muted">No reason provided</span>'}</td>
+                <td><span class="badge bg-success">Discharged</span></td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Discharge history error:", error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-danger">Network error while loading discharge history.</td>
+            </tr>
+        `;
+    }
+}
+/* LIVE CLOCK */
+function updateClock(){
+    const now = new Date();
+    document.getElementById("time").textContent = now.toLocaleTimeString();
+    document.getElementById("date").textContent = now.toLocaleDateString("en-US", {
+        month:"long",
+        day:"2-digit",
+        year:"numeric"
+    }).toUpperCase();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* CHART */
+const ctx = document.getElementById("healthChart");
+new Chart(ctx, {
+    type:"line",
+    data:{
+        labels:["06:00","09:00","12:00","15:00","18:00","21:00"],
+        datasets:[
+            {
+                label:"Heart Rate",
+                data:[72,85,82,78,74,76],
+                borderColor:"#2563eb",
+                borderWidth:3,
+                tension:0.4
+            },
+            {
+                label:"NEWS2 Risk Score",
+                data:[1,3,2,1,1,0],
+                borderColor:"#f59e0b",
+                borderWidth:2,
+                borderDash:[5,5],
+                tension:0.4
+            }
+        ]
+    },
+    options:{
+        responsive:true,
+        plugins:{
+            legend:{position:"top"}
+        }
+    }
+});
+
+/* AUTH HELPERS */
+function getToken() {
+    return localStorage.getItem(TOKEN_KEY);
+}
+
+function redirectToLogin() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(ROLE_KEY);
+    window.location.href = "login.html";
+}
+
+function signOut() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(ROLE_KEY);
+    window.location.href = "login.html";
+}
+
+function safeText(value, fallback = "--") {
+    if (value === null || value === undefined || value === "") return fallback;
+    return value;
+}
+
+async function fetchWithAuth(url, options = {}) {
+    const token = getToken();
+
+    if (!token) {
+        redirectToLogin();
+        return null;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...(options.headers || {}),
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    });
+
+    if (response.status === 401 || response.status === 403) {
+        redirectToLogin();
+        return null;
+    }
+
+    return response;
+}
+
+async function loadTransferHistory() {
+    const tableBody = document.getElementById("transferHistoryTable");
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="3" class="text-muted text-center">Loading transfer history...</td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetchWithAuth(TRANSFER_HISTORY_ENDPOINT, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const data = await res.json();
+        const transfers = data.transfers || [];
+
+        if (!res.ok) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-danger text-center">
+                        ${data.message || "Failed to load transfer history."}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        if (!transfers.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-muted text-center">
+                        No transfer records found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = transfers.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.transferto ?? "—"}</td>
+               <td>${formatDateTime(item.transferdate)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-danger text-center">
+                    Network error loading transfer history.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+/* LOAD PROFILE */
+async function loadCurrentUser() {
+    try {
+        const res = await fetchWithAuth(PROFILE_ENDPOINT, { method: "GET" });
+        if (!res) return;
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            redirectToLogin();
+            return;
+        }
+
+        currentUser = data;
+        localStorage.setItem(USER_KEY, JSON.stringify(data));
+
+        const firstname = safeText(data.firstname, "Patient");
+        const userId = safeText(data.id, "--");
+
+        document.getElementById("welcomeText").textContent = `Welcome Back, ${firstname}`;
+        document.getElementById("userMeta").textContent = `${currentWardName} | ID: ${userId}`;
+
+        document.getElementById("firstname").value = data.firstname || "";
+        document.getElementById("lastname").value = data.lastname || "";
+        document.getElementById("dob").value = data.dob ? formatDateForInput(data.dob) : "";
+        document.getElementById("phonenumber").value = data.phonenumber || "";
+        document.getElementById("gender").value = data.gender || "";
+    } catch (error) {
+        redirectToLogin();
+    }
+}
+
+
+
+
+
+
+function formatDateForInput(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+
+function showAlert(message, type = "success") {
+    const alertMsg = document.getElementById("alertMsg");
+
+    alertMsg.style.display = "block";
+    alertMsg.innerText = message;
+    alertMsg.style.padding = "12px";
+    alertMsg.style.borderRadius = "10px";
+    alertMsg.style.marginBottom = "20px";
+    alertMsg.style.fontWeight = "600";
+
+    if (type === "error") {
+        alertMsg.style.background = "#fee2e2";
+        alertMsg.style.color = "#991b1b";
+        alertMsg.style.border = "1px solid #ef4444";
+    } else {
+        alertMsg.style.background = "#d1fae5";
+        alertMsg.style.color = "#065f46";
+        alertMsg.style.border = "1px solid #10b981";
+    }
+
+    setTimeout(() => {
+        alertMsg.style.display = "none";
+        alertMsg.innerText = "";
+    }, 3000);
+}
+
+
+document.getElementById("updateProfileForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const profileBtn = document.getElementById("profileBtn");
+    const firstname = document.getElementById("firstname").value.trim();
+    const lastname = document.getElementById("lastname").value.trim();
+    const dob = document.getElementById("dob").value;
+    const phonenumber = document.getElementById("phonenumber").value.trim();
+    const gender = document.getElementById("gender").value;
+
+    if (!firstname || !lastname) {
+        showAlert("First name and last name are required.", "error");
+        return;
+    }
+
+    if (phonenumber) {
+        const phoneRegex = /^[0-9]{10,15}$/;
+        if (!phoneRegex.test(phonenumber)) {
+            showAlert("Phone number must be 10 to 15 digits.", "error");
+            return;
+        }
+    }
+
+    const updateData = {
+        firstname,
+        lastname,
+        dob,
+        phonenumber,
+        gender
+    };
+
+    try {
+        profileBtn.disabled = true;
+        profileBtn.textContent = "Updating...";
+
+        const res = await fetchWithAuth(PROFILE_ENDPOINT, {
+            method: "PUT",
+            body: JSON.stringify(updateData)
+        });
+
+        if (!res) return;
+
+        const data = await res.json();
+        console.log("Update profile response:", data);
+
+        if (!res.ok) {
+            showAlert(data.message || "Profile update failed.", "error");
+            return;
+        }
+
+        showAlert(data.message || "Profile updated successfully", "success");
+
+        if (data.user) {
+            currentUser = data.user;
+            localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+
+            const firstname = safeText(data.user.firstname, "Patient");
+            const userId = safeText(data.user.id, "--");
+
+            const welcomeText = document.getElementById("welcomeText");
+            const userMeta = document.getElementById("userMeta");
+
+            if (welcomeText) {
+                welcomeText.textContent = `Welcome Back, ${firstname}`;
+            }
+
+            if (userMeta) {
+                userMeta.textContent = `${currentWardName} | ID: ${userId}`;
+            }
+
+            document.getElementById("firstname").value = data.user.firstname || "";
+            document.getElementById("lastname").value = data.user.lastname || "";
+            document.getElementById("dob").value = data.user.dob ? formatDateForInput(data.user.dob) : "";
+            document.getElementById("phonenumber").value = data.user.phonenumber || "";
+            document.getElementById("gender").value = data.user.gender || "";
+        }
+
+    } catch (error) {
+        console.error("Update profile error:", error);
+        showAlert("Network error while updating profile.", "error");
+    } finally {
+        profileBtn.disabled = false;
+        profileBtn.textContent = "Update Profile";
+    }
+});
+
+loadCurrentUser();
+
+
+/* LOAD WARD */
+async function loadCurrentWard() {
+    try {
+        const res = await fetchWithAuth(WARD_ENDPOINT, { method: "GET" });
+        if (!res) return;
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            currentWardName = "--";
+            return;
+        }
+
+        if (data.ward && Array.isArray(data.ward) && data.ward.length > 0) {
+            currentWardName = data.ward[0].name || "--";
+        } else {
+            currentWardName = "--";
+        }
+
+        const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || "{}");
+        const userId = safeText(savedUser.id, "--");
+        document.getElementById("userMeta").textContent = `Ward ${currentWardName} | ID: ${userId}`;
+    } catch (error) {
+        currentWardName = "--";
+    }
+}
+
+// function formatDateForInput(dateString) {
+//     const date = new Date(dateString);
+//     if (Number.isNaN(date.getTime())) return "";
+//     const year = date.getFullYear();
+//     const month = String(date.getMonth() + 1).padStart(2, "0");
+//     const day = String(date.getDate()).padStart(2, "0");
+//     return `${year}-${month}-${day}`;
+// }
+
+async function loadMedicationList() {
+    const tableBody = document.getElementById("medicationTableBody");
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="5" class="text-muted text-center">
+                Loading medication list...
+            </td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetchWithAuth(TREATMENT_ENDPOINT, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const result = await res.json();
+        console.log("Treatment response:", result);
+
+        if (!res.ok) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-danger text-center">
+                        ${result.message || "Failed to load medication list."}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const treatments = result.treatments || [];
+
+        if (!treatments.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-muted text-center">
+                        No medication records found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = treatments.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.symptoms || "-"}</td>
+                <td>${item.diagnosis || "-"}</td>
+                <td>${item.medication || "-"}</td>
+                <td>${formatDateTime(item.prescriptiondate)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Medication error:", error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-danger text-center">
+                    Network error loading medication list.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+document.getElementById("passwordForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    const message = document.getElementById("passwordMessage");
+
+    // Reset message style
+    message.innerHTML = "";
+    message.style = "";
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showError("All password fields are required");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        showError("New passwords do not match");
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        showError("New password must be at least 6 characters");
+        return;
+    }
+
+    try {
+        const res = await fetchWithAuth(CHANGE_PASSWORD_ENDPOINT, {
+            method: "POST",
+            body: JSON.stringify({
+                currentPassword,
+                newPassword
+            })
+        });
+
+        if (!res) return;
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showError(data.message || "Password change failed");
+            return;
+        }
+
+        // ✅ SUCCESS MESSAGE
+        showSuccess(data.message || "Password updated successfully");
+
+        document.getElementById("passwordForm").reset();
+
+    } catch (err) {
+        showError("Network error");
+    }
+});
+
+/* SUCCESS MESSAGE */
+function showSuccess(text) {
+    const message = document.getElementById("passwordMessage");
+
+    message.style.background = "#d1fae5";
+    message.style.color = "#065f46";
+    message.style.padding = "10px";
+    message.style.borderRadius = "8px";
+    message.style.border = "1px solid #10b981";
+    message.style.fontWeight = "600";
+
+    message.innerHTML = "✔ " + text;
+
+    setTimeout(() => {
+        message.innerHTML = "";
+        message.style = "";
+    }, 3000);
+}
+
+/* ERROR MESSAGE */
+function showError(text) {
+    const message = document.getElementById("passwordMessage");
+
+    message.style.background = "#fee2e2";
+    message.style.color = "#991b1b";
+    message.style.padding = "10px";
+    message.style.borderRadius = "8px";
+    message.style.border = "1px solid #ef4444";
+    message.style.fontWeight = "600";
+
+    message.innerHTML = "✖ " + text;
+}
+
+
+
+/* SECURE PAGE LOAD */
+async function initDashboard() {
+    const token = getToken();
+    const role = localStorage.getItem(ROLE_KEY);
+
+    if (!token) {
+        redirectToLogin();
+        return;
+    }
+
+    if (role && role.toUpperCase() !== "PATIENT") {
+        redirectToLogin();
+        return;
+    }
+
+    await loadCurrentWard();
+    await loadCurrentUser();
+    await loadAvailabilitySlots();
+    await loadMedicationList();
+
+    document.getElementById("pageLoader").style.display = "none";
+}
+
+initDashboard();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance & Data Governance | MediWard Intelligence</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root { 
+            --primary: #2563eb; 
+            --nhs-blue: #005eb8;
+            --dark-space: #020617;
+            --bg-light: #f8fafc;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; color: #334155; background: white; overflow-x: hidden; }
+
+        /* NAVBAR - CLEANER LOOK */
+        .navbar { background: rgba(232, 232, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid #e2e8f0; }
+        .nav-link { color: #1e293b !important; transition: 0.2s; }
+        .nav-link:hover { color: var(--primary) !important; }
+
+        /* HERO: THE "SECURITY SHIELD" */
+        .hero-wrap {
+            background: var(--dark-space);
+            padding: 160px 0 100px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg-img {
+            position: absolute; right: 0; top: 0; width: 60%; height: 100%;
+            background: url('https://media.istockphoto.com/id/961940066/photo/doctor-securely-accessing-ehr-via-ai-in-network.jpg?s=612x612&w=0&k=20&c=4j5LIuH1YBBrtIzVmFu-bc9QcPZlJ1qOYXQvW7SsV30=') center/cover;
+            opacity: 0.3; 
+            mask-image: linear-gradient(to left, black, transparent);
+            -webkit-mask-image: linear-gradient(to left, black, transparent);
+        }
+
+        /* DATA TILES */
+        .data-grid { margin-top: -60px; position: relative; z-index: 10; }
+        .data-card {
+            background: white; border-radius: 24px; padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08); border: 1px solid #f1f5f9;
+            transition: 0.3s;
+        }
+        .data-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .data-icon { font-size: 2.2rem; color: var(--primary); margin-bottom: 20px; }
+
+        /* ARCHITECTURE WITH ANIMATION */
+        .arch-section { padding: 100px 0; background: var(--bg-light); }
+        .blueprint-card { background: #0f172a; border-radius: 30px; overflow: hidden; padding: 50px; position: relative; }
+        .pulse-line { height: 2px; background: rgba(255,255,255,0.1); width: 100%; position: relative; }
+        .dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; position: absolute; top: -4px; animation: move 3s infinite linear; box-shadow: 0 0 10px var(--primary); }
+        @keyframes move { 0% { left: 0; opacity: 0; } 50% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+
+        /* FORM */
+        .compliance-form { background: var(--dark-space); color: white; border-radius: 40px; padding: 60px; }
+        .form-control { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px; }
+        .form-control:focus { background: rgba(255,255,255,0.1); color: white; border-color: var(--primary); box-shadow: none; }
+
+        /* FOOTER */
+        .footer { background: #0f172a; color: #94a3b8; }
+        .footer a { color: #94a3b8; text-decoration: none; }
+        .footer a:hover { color: white; }
+
+        /* REVEAL */
+        .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* COOKIE BANNER */
+        /* .uk-cookie {
+            position: fixed; bottom: 30px; left: 30px; width: 380px; background: white;
+            border-radius: 24px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            z-index: 9999; display: none; border: 1px solid #eee;
+        } */
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img src="image/logo mediward.png" alt="Logo" style="height:48px; margin-right:10px;">
+        <span class="fw-bold text-primary">MediWard</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto fw-semibold align-items-center">
+                    <li class="nav-item"><a class="nav-link px-3" href="./index.html"><i class="fa-solid fa-microchip"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="./about-us.html"><i class="fa-solid fa-circle-info"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="./compliance.html"><i class="fa-solid fa-shield-halved"></i>Compliance</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="./contact-us.html"><i class="fa-solid fa-phone"></i>Contact Us</a></li>
+                  <li class="nav-item"><a class="nav-link px-3" href="./login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i>Login</a></li>
+          <li class="nav-item ms-lg-3">
+              <div class="dropdown">
+                  <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      <i class="fa-solid fa-right-to-bracket me-2"></i>Signup
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-4">
+                      <li><a class="dropdown-item rounded-3 py-2" href="./patient-signup.html">Patient Signup</a></li>
+                      <li><a class="dropdown-item rounded-3 py-2" href="./staff-signup.html">Staff Signup</a></li>
+                  </ul>
+              </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+
+<main id="main-content">
+    <section class="hero-wrap" aria-labelledby="hero-title">
+        <div class="hero-bg-img" role="presentation"></div>
+        <div class="container position-relative">
+            <div class="row">
+                <div class="col-lg-7 reveal">
+                    <div class="d-flex align-items-center mb-4">
+                        <span class="badge bg-primary px-3 py-1 rounded-pill small fw-bold me-3">V6.0 COMPLIANT</span>
+                        <span class="text-white-50 small fw-bold text-uppercase tracking-wider">NHS Data Standards</span>
+                    </div>
+                    <h1 id="hero-title" class="display-3 fw-800 mb-4">Security as a <br><span class="text-primary">Clinical Priority.</span></h1>
+                    <p class="lead opacity-75 mb-5" style="max-width: 600px;">MediWard builds a digital fortress around your ward. From bedside biometric entry to UK-sovereign cloud storage, we ensure your Trust never faces a data compromise.</p>
+                    <div class="row g-4" role="list">
+                        <div class="col-6 col-md-4" role="listitem">
+                            <h2 class="fw-800 mb-0">100%</h2>
+                            <p class="small text-white-50 text-uppercase">UK Data Hosting</p>
+                        </div>
+                        <div class="col-6 col-md-4" role="listitem">
+                            <h2 class="fw-800 mb-0">AES-256</h2>
+                            <p class="small text-white-50 text-uppercase">Encryption Std</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container data-grid" aria-label="Compliance Certifications">
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <article class="data-card text-center">
+                    <div class="data-icon" aria-hidden="true"><i class="fa-solid fa-building-shield"></i></div>
+                    <h3 class="h5 fw-800">ISO 27001</h3>
+                    <p class="small text-muted mb-0">Global standard for Information Security Management systems.</p>
+                </article>
+            </div>
+            <div class="col-md-4 reveal">
+                <article class="data-card text-center">
+                    <div class="data-icon" style="color: var(--nhs-blue);" aria-hidden="true"><i class="fa-solid fa-hospital-user"></i></div>
+                    <h3 class="h5 fw-800">NHS DSPT</h3>
+                    <p class="small text-muted mb-0">Annual verification against NHS Data Security and Protection Toolkits.</p>
+                </article>
+            </div>
+            <div class="col-md-4 reveal">
+                <article class="data-card text-center">
+                    <div class="data-icon" style="color: #10b981;" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <h3 class="h5 fw-800">CQC Audit Ready</h3>
+                    <p class="small text-muted mb-0">Full digital audit trails for Care Quality Commission inspections.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="arch-section" aria-labelledby="arch-title">
+        <div class="container">
+            <div class="row align-items-center reveal">
+                <div class="col-lg-5 mb-5 mb-lg-0">
+                    <h2 id="arch-title" class="fw-800 mb-4">A Zero-Trust Bedside Environment.</h2>
+                    <p class="text-muted">In traditional systems, data is vulnerable. MediWard uses a <strong>Point-to-Cloud</strong> encryption tunnel that bypasses local tablet storage entirely.</p>
+                    <ul class="list-unstyled mt-4" role="list">
+                        <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2" aria-hidden="true"></i> <strong>Zero-Local Storage:</strong> No data lives on physical disks.</li>
+                        <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2" aria-hidden="true"></i> <strong>MFA Access:</strong> Bio-authentication for every login.</li>
+                        <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2" aria-hidden="true"></i> <strong>Sovereign Cloud:</strong> Exclusively UK-based AWS London.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-7">
+                    <div class="blueprint-card shadow-xl" role="img" aria-label="Visual representation of secure data transfer from tablet to cloud">
+                        <div class="d-flex justify-content-around align-items-center py-5 text-white">
+                            <div class="text-center">
+                                <i class="fa-solid fa-tablet-screen-button fa-2x mb-2 text-primary"></i>
+                                <div class="small opacity-50">Bedside Tablet</div>
+                            </div>
+                            <div class="flex-grow-1 mx-4">
+                                <div class="pulse-line"><div class="dot"></div></div>
+                            </div>
+                            <div class="text-center">
+                                <i class="fa-solid fa-cloud-shield fa-2x mb-2 text-success"></i>
+                                <div class="small opacity-50">UK Server</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-white" id="demo-form" aria-labelledby="form-title">
+        <div class="container py-5 reveal">
+            <div class="compliance-form">
+                <div class="row g-5">
+                    <div class="col-lg-5">
+                        <h2 id="form-title" class="fw-800">Secure Your <br>Trust Deployment.</h2>
+                        <p class="opacity-75 mt-4">Download our clinical safety case (DCB0129) and full security architecture whitepaper.</p>
+                        <div class="mt-5 p-4 rounded-4" style="background: rgba(255,255,255,0.05);" role="note">
+                            <p class="small mb-0 fst-italic">"The most thorough IG documentation we've reviewed this decade."</p>
+                            <span class="small fw-bold text-primary">— IG Lead, NHS Trust</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <form action="#" method="POST">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="role" class="small fw-bold text-white-50">CLINICAL ROLE</label>
+                                    <input type="text" id="role" class="form-control rounded-4" placeholder="e.g. IT Director" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="org" class="small fw-bold text-white-50">ORGANISATION</label>
+                                    <input type="text" id="org" class="form-control rounded-4" placeholder="NHS Trust Name" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="email" class="small fw-bold text-white-50">NHS EMAIL</label>
+                                    <input type="email" id="email" class="form-control rounded-4" placeholder="name@nhs.net" required>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="consent" required>
+                                        <label class="form-check-label small text-white-50" for="consent">
+                                            I consent to my data being processed per the <a href="#" class="text-primary fw-bold">UK GDPR Privacy Policy</a>.
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold">Download Compliance Pack</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer pt-5 pb-4">
+    <div class="container">
+      <div class="row">
+    
+        <div class="col-md-3">
+          <h5 class="text-white">MediWard</h5>
+          <p>Enterprise platform improving patient safety and operational efficiency.</p>
+        </div>
+    
+        <div class="col-md-3">
+          <h6 class="text-white">Solutions</h6>
+          <p><i class="fa-solid fa-user-doctor footer-icon"></i>Patient Portal</p>
+          <p><i class="fa-solid fa-laptop-medical footer-icon"></i>Staff Dashboard</p>
+          <p><i class="fa-solid fa-video footer-icon"></i>Telehealth</p>
+          <p><i class="fa-solid fa-chart-line footer-icon"></i>Analytics</p>
+        </div>
+    
+        <div class="col-md-3">
+          <h6 class="text-white">Compliance</h6>
+          <p><i class="fa-solid fa-shield-halved footer-icon"></i>GDPR</p>
+          <p><i class="fa-solid fa-file-contract footer-icon"></i>NHS DSPT</p>
+          <p><i class="fa-solid fa-lock footer-icon"></i>ISO 27001</p>
+          <p><i class="fa-solid fa-user-shield footer-icon"></i>Security</p>
+        </div>
+    
+        <div class="col-md-3">
+          <h6 class="text-white">Contact</h6>
+          <p><i class="fa-solid fa-location-dot footer-icon"></i>Bristol, UK</p>
+          <p><i class="fa-solid fa-envelope footer-icon"></i>support@mediward.ai</p>
+          <p><i class="fa-solid fa-phone footer-icon"></i>Emergency: 999</p>
+    
+          <div class="mt-3">
+            <a href="#"><i class="fa-brands fa-facebook fa-lg me-3"></i></a>
+            <a href="#"><i class="fa-brands fa-twitter fa-lg me-3"></i></a>
+            <a href="#"><i class="fa-brands fa-linkedin fa-lg me-3"></i></a>
+            <a href="#"><i class="fa-brands fa-instagram fa-lg"></i></a>
+          </div>
+        </div>
+    
+      </div>
+    
+    
+    
+      <div class="text-center mt-4 border-top border-secondary pt-3" style="opacity: 0.7;">
+        <p class="mb-1 small">© 2026 MediWard Intelligent Ward Management System</p>
+        <p class="mb-0" style="font-weight: 300; letter-spacing: 2px; font-size: 14px; text-transform: uppercase;">
+            Designed by <span class="text-primary" style="font-weight: 500;">M</span>
+        </p>
+    </div>
+    </div>
+    </footer>
+
+<!-- <div id="cookieJar" class="uk-cookie" role="alert" aria-live="assertive">
+    <h6 class="fw-800 mb-2">Cookie Privacy</h6>
+    <p class="small text-muted">We use essential cookies for system security. Allow optional performance analytics?</p>
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-dark w-100 rounded-pill btn-sm" onclick="acceptCookies()">Accept All</button>
+        <button class="btn btn-outline-secondary w-100 rounded-pill btn-sm" onclick="acceptCookies()">Essential Only</button>
+    </div>
+</div> -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+    });
+    document.querySelectorAll('.reveal').forEach(r => obs.observe(r));
+
+    setTimeout(() => { document.getElementById('cookieJar').style.display = 'block'; }, 2000);
+    function acceptCookies() {
+        document.getElementById('cookieJar').style.opacity = '0';
+        setTimeout(() => { document.getElementById('cookieJar').style.display = 'none'; }, 500);
+    }
+</script>
+
+</body>
+</html>
