@@ -343,7 +343,7 @@
         signupBtn.textContent = "Signing up...";
 
         try {
-            const response = await fetch("http://localhost:3000/auth/staff/signup", {
+            const response = await fetch("https://mediwardbackend.vercel.app/auth/staff/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
