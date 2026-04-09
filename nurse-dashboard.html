@@ -765,8 +765,8 @@ async function loadWards() {
         document.getElementById("wardsTableBody").innerHTML = wards.map(w => `
             <tr>
                 <td>${w.name ?? "--"}</td>
-                <td>${w.currentoccupancy ?? 0}</td>
-                <td>${w.totaloccupancy ?? 0}</td>
+                <td>${w.bedoccupancy ?? 0}</td>
+                <td>${w.bedcapacity ?? 0}</td>
                 <td>
                     <button class="btn btn-sm btn-info" onclick="viewWard('${w.id}', '${w.name}')">View</button>
                 </td>

@@ -689,8 +689,8 @@ async function loadWards() {
           <span id="ward-name-${w.id}">${w.name}</span>
           <input id="ward-input-${w.id}" class="ward-edit-input" value="${w.name}" style="display:none">
         </td>
-        <td>${w.currentoccupancy ?? 0}</td>
-        <td>${w.totaloccupancy ?? 30}</td>
+        <td>${w.bedoccupancy ?? 0}</td>
+        <td>${w.bedcapacity ?? 30}</td>
         <td>
           <div id="ward-view-btns-${w.id}">
               <button class="btn btn-sm btn-info me-1" onclick="viewWard('${w.id}', '${w.name}')">View</button>

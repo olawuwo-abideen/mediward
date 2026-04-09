@@ -980,8 +980,8 @@ async function loadWards() {
         document.getElementById("wardsTableBody").innerHTML = wards.map(w => `
             <tr>
                 <td>${w.name ?? "--"}</td>
-                <td>${w.currentoccupancy ?? 0}</td>
-                <td>${w.totaloccupancy ?? 0}</td>
+                <td>${w.bedoccupancy ?? 0}</td>
+                <td>${w.bedcapacity ?? 0}</td>
                 <td>
                     <button class="btn btn-sm btn-info" onclick="viewWard('${w.id}', '${w.name}')">View</button>
                 </td>
@@ -1066,7 +1066,7 @@ async function loadTransferWardOptions() {
             <option value="">Select Ward</option>
             ${wards.map(w => `
                 <option value="${w.id}">
-                    ${w.name ?? "Unnamed Ward"} (${w.currentoccupancy ?? 0}/${w.totaloccupancy ?? 0})
+                    ${w.name ?? "Unnamed Ward"} (${w.bedoccupancy ?? 0}/${w.bedcapacity ?? 0})
                 </option>
             `).join("")}
         `;
@@ -1510,7 +1510,7 @@ async function loadWardOptions() {
             <option value="">Select Ward</option>
             ${wards.map(w => `
                 <option value="${w.id}">
-                    ${w.name ?? "Unnamed Ward"} (${w.currentoccupancy ?? 0}/${w.totaloccupancy ?? 0})
+                    ${w.name ?? "Unnamed Ward"} (${w.bedoccupancy ?? 0}/${w.bedcapacity ?? 0})
                 </option>
             `).join("")}
         `;
