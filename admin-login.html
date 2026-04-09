@@ -144,43 +144,55 @@
     const API_BASE = "https://mediwardbackend.vercel.app"; 
 
     async function loginAdmin() {
-    const email = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value.trim();
-    const errorDiv = document.getElementById('error-msg');
-    errorDiv.innerText = "";
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value.trim();
+        const errorDiv = document.getElementById('error-msg');
+        errorDiv.innerText = "";
 
-    if(!email || !password) {
-        showToast("Please enter email and password", "error");
-        return;
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/admin/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await res.json();
-
-        if(!res.ok) {
-            showToast(data.message || "Login failed", "error");
+        if(!email || !password) {
+            errorDiv.innerText = "Please enter both email and password.";
             return;
         }
 
-        // Save token
-        localStorage.setItem('aura_admin_token', data.token);
+        try {
+            const res = await fetch(`${API_BASE}/admin/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
 
-        showToast("Login successful", "success");
+            const data = await res.json();
 
-        setTimeout(() => {
+            if(!res.ok) {
+                errorDiv.innerText = data.message || "Login failed. Check credentials.";
+                return;
+            }
+
+            // Save token in localStorage
+            localStorage.setItem('aura_admin_token', data.token);
+
+            // Redirect to admin dashboard
             window.location.href = "admin-dashboard.html";
-        }, 1000);
 
-    } catch(err) {
-        console.error(err);
-        showToast("Network error. Try again.", "error");
+        } catch(err) {
+            console.error(err);
+            errorDiv.innerText = "Network error. Please try again.";
+        }
     }
+
+    function showToast(message, type = "info") {
+    const container = document.getElementById("toast-container");
+
+    const toast = document.createElement("div");
+    toast.className = `toast-msg toast-${type}`;
+    toast.innerText = message;
+
+    container.appendChild(toast);
+
+    // Remove after animation
+    setTimeout(() => {
+        toast.remove();
+    }, 4000);
 }
 </script>
 
