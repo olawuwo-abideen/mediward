@@ -45,6 +45,11 @@
         background: rgba(255,255,255,0.15);
         border-color: #4f46e5;
         box-shadow: none;
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6);
     }
 
     .btn-login {
@@ -56,6 +61,7 @@
         font-weight: 800;
         transition: 0.3s;
         margin-bottom: 15px;
+        color: white;
     }
 
     .btn-login:hover {
@@ -63,10 +69,17 @@
         transform: translateY(-2px);
     }
 
+    .btn-login:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .error-msg {
         color: #f87171;
         font-size: 0.9rem;
         margin-bottom: 15px;
+        min-height: 20px;
     }
 
     .small-text {
@@ -74,47 +87,58 @@
         opacity: 0.5;
     }
 
+    /* RIGHT SIDE TOAST */
     #toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-}
-
-.toast-msg {
-    min-width: 250px;
-    margin-bottom: 10px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    color: white;
-    font-weight: 600;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    animation: slideIn 0.4s ease, fadeOut 0.4s ease 3.6s forwards;
-}
-
-/* Types */
-.toast-success { background: #10b981; }
-.toast-error { background: #ef4444; }
-.toast-info { background: #3b82f6; }
-
-/* Animations */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
     }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
 
-@keyframes fadeOut {
-    to {
-        opacity: 0;
-        transform: translateX(50px);
+    .toast-msg {
+        min-width: 260px;
+        max-width: 340px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        animation: slideInRight 0.35s ease, fadeOutRight 0.35s ease 2.65s forwards;
     }
-}
+
+    .toast-success {
+        background: #10b981;
+    }
+
+    .toast-error {
+        background: #ef4444;
+    }
+
+    .toast-info {
+        background: #3b82f6;
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeOutRight {
+        to {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+    }
 </style>
 </head>
 <body>
@@ -130,29 +154,51 @@
 
     <input type="text" id="adminEmail" class="form-control" placeholder="admin@example.com">
     <input type="password" id="adminPassword" class="form-control" placeholder="••••••••">
-    <button class="btn-login" onclick="loginAdmin()">Sign In</button>
+    <button id="loginBtn" class="btn-login" onclick="loginAdmin()">Sign In</button>
 
     <div class="small-text mt-3">
         <i class="fa fa-lock me-1"></i> AES-256 Encrypted | Session ID: <span id="sessID">...</span>
     </div>
 </div>
 
-<script>
-    // Generate fake session ID for display
-    document.getElementById('sessID').innerText = Math.random().toString(36).substr(2,9).toUpperCase();
+<div id="toast-container"></div>
 
-    const API_BASE = "https://mediwardbackend.vercel.app"; 
+<script>
+    document.getElementById('sessID').innerText = Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    const API_BASE = "https://mediwardbackend.vercel.app";
+
+    function showToast(message, type = "info") {
+        const container = document.getElementById("toast-container");
+
+        const toast = document.createElement("div");
+        toast.className = `toast-msg toast-${type}`;
+        toast.innerText = message;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
 
     async function loginAdmin() {
         const email = document.getElementById('adminEmail').value.trim();
         const password = document.getElementById('adminPassword').value.trim();
         const errorDiv = document.getElementById('error-msg');
+        const loginBtn = document.getElementById('loginBtn');
+
         errorDiv.innerText = "";
 
-        if(!email || !password) {
-            errorDiv.innerText = "Please enter both email and password.";
+        if (!email || !password) {
+            const msg = "Please enter both email and password.";
+            errorDiv.innerText = msg;
+            showToast(msg, "error");
             return;
         }
+
+        loginBtn.disabled = true;
+        loginBtn.innerText = "Signing In...";
 
         try {
             const res = await fetch(`${API_BASE}/admin/login`, {
@@ -163,39 +209,45 @@
 
             const data = await res.json();
 
-            if(!res.ok) {
-                errorDiv.innerText = data.message || "Login failed. Check credentials.";
+            if (!res.ok) {
+                const msg = data.message || "Login failed. Check credentials.";
+                errorDiv.innerText = msg;
+                showToast(msg, "error");
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Sign In";
                 return;
             }
 
-            // Save token in localStorage
             localStorage.setItem('aura_admin_token', data.token);
 
-            // Redirect to admin dashboard
-            window.location.href = "admin-dashboard.html";
+            showToast("Login successful. Redirecting...", "success");
 
-        } catch(err) {
+            setTimeout(() => {
+                window.location.href = "admin-dashboard.html";
+            }, 1000);
+
+        } catch (err) {
             console.error(err);
-            errorDiv.innerText = "Network error. Please try again.";
+            const msg = "Network error. Please try again.";
+            errorDiv.innerText = msg;
+            showToast(msg, "error");
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Sign In";
         }
     }
 
-    function showToast(message, type = "info") {
-    const container = document.getElementById("toast-container");
+    document.getElementById("adminPassword").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            loginAdmin();
+        }
+    });
 
-    const toast = document.createElement("div");
-    toast.className = `toast-msg toast-${type}`;
-    toast.innerText = message;
-
-    container.appendChild(toast);
-
-    // Remove after animation
-    setTimeout(() => {
-        toast.remove();
-    }, 4000);
-}
+    document.getElementById("adminEmail").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            loginAdmin();
+        }
+    });
 </script>
 
-<div id="toast-container"></div>
 </body>
 </html>
