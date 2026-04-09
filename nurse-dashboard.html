@@ -930,7 +930,7 @@ async function loadWardOptions() {
             <option value="">Select Ward</option>
             ${wards.map(w => `
                 <option value="${w.id}">
-                    ${w.name ?? "Unnamed Ward"} (${w.currentoccupancy ?? 0}/${w.totaloccupancy ?? 0})
+                    ${w.name ?? "Unnamed Ward"} (${w.bedoccupancy ?? 0}/${w.bedcapacity ?? 0})
                 </option>
             `).join("")}
         `;
