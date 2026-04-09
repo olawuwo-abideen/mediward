@@ -73,6 +73,48 @@
         font-size: 0.8rem;
         opacity: 0.5;
     }
+
+    #toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast-msg {
+    min-width: 250px;
+    margin-bottom: 10px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 3.6s forwards;
+}
+
+/* Types */
+.toast-success { background: #10b981; }
+.toast-error { background: #ef4444; }
+.toast-info { background: #3b82f6; }
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+}
 </style>
 </head>
 <body>
@@ -102,42 +144,46 @@
     const API_BASE = "https://mediwardbackend.vercel.app"; 
 
     async function loginAdmin() {
-        const email = document.getElementById('adminEmail').value.trim();
-        const password = document.getElementById('adminPassword').value.trim();
-        const errorDiv = document.getElementById('error-msg');
-        errorDiv.innerText = "";
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    const errorDiv = document.getElementById('error-msg');
+    errorDiv.innerText = "";
 
-        if(!email || !password) {
-            errorDiv.innerText = "Please enter both email and password.";
+    if(!email || !password) {
+        showToast("Please enter email and password", "error");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok) {
+            showToast(data.message || "Login failed", "error");
             return;
         }
 
-        try {
-            const res = await fetch(`${API_BASE}/admin/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
+        // Save token
+        localStorage.setItem('aura_admin_token', data.token);
 
-            const data = await res.json();
+        showToast("Login successful", "success");
 
-            if(!res.ok) {
-                errorDiv.innerText = data.message || "Login failed. Check credentials.";
-                return;
-            }
-
-            // Save token in localStorage
-            localStorage.setItem('aura_admin_token', data.token);
-
-            // Redirect to admin dashboard
+        setTimeout(() => {
             window.location.href = "admin-dashboard.html";
+        }, 1000);
 
-        } catch(err) {
-            console.error(err);
-            errorDiv.innerText = "Network error. Please try again.";
-        }
+    } catch(err) {
+        console.error(err);
+        showToast("Network error. Try again.", "error");
     }
+}
 </script>
 
+<div id="toast-container"></div>
 </body>
 </html>
