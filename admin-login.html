@@ -99,7 +99,7 @@
     // Generate fake session ID for display
     document.getElementById('sessID').innerText = Math.random().toString(36).substr(2,9).toUpperCase();
 
-    const API_BASE = "https://mediwardbackend.vercel.app/"; // Replace with your actual backend URL
+    const API_BASE = "https://mediwardbackend.vercel.app"; // Replace with your actual backend URL
 
     async function loginAdmin() {
         const email = document.getElementById('adminEmail').value.trim();
