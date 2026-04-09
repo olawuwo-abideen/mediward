@@ -236,6 +236,10 @@ body{
     display:none;
 }
 
+.table-responsive{
+    overflow-x:auto;
+}
+
 @media (max-width:768px){
     body{
         display:block;
@@ -285,6 +289,7 @@ body{
     </table>
   </div>
 </div>
+
 <div id="pageLoader" class="loading-box">Loading staff portal...</div>
 
 <!-- SIDEBAR -->
@@ -292,23 +297,27 @@ body{
     <div>
         <h5>Nurse Dashboard</h5>
 
-        <a onclick="showSection('dashboard', this)" class="active">
+        <a id="nav-dashboard" onclick="showSection('dashboard', this)">
             <i class="fa fa-home"></i> Dashboard
         </a>
 
-        <a onclick="showSection('admissions', this)">
+        <a id="nav-admissions" onclick="showSection('admissions', this)">
             <i class="fa fa-user-plus"></i> Admissions
         </a>
 
-        <a onclick="showSection('ward', this)">
+        <a id="nav-patient-details" onclick="showSection('patient-details', this)">
+            <i class="fa fa-users"></i> Patient Details
+        </a>
+
+        <a id="nav-ward" onclick="showSection('ward', this)">
             <i class="fa fa-bed"></i> Ward Overview
         </a>
 
-        <a onclick="showSection('profile', this)">
+        <a id="nav-profile" onclick="showSection('profile', this)">
             <i class="fa fa-user-edit"></i> Update Profile
         </a>
 
-        <a onclick="showSection('password', this)">
+        <a id="nav-password" onclick="showSection('password', this)">
             <i class="fa fa-lock"></i> Update Password
         </a>
     </div>
@@ -320,8 +329,7 @@ body{
 <div class="main">
 
     <!-- DASHBOARD -->
-    <div id="dashboard" class="section active">
-
+    <div id="dashboard" class="section">
         <div class="header">
             <div>
                 <h4>Welcome, <span id="username">Staff</span></h4>
@@ -362,7 +370,6 @@ body{
 
         <div class="stat-card">
             <h6>Current Patients</h6>
-
             <table class="table">
                 <thead>
                     <tr>
@@ -372,7 +379,6 @@ body{
                         <th>Assigned Doctor</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <tr>
                         <td>Raj Singh</td>
@@ -380,7 +386,6 @@ body{
                         <td>Stable</td>
                         <td>Dr. Patel</td>
                     </tr>
-
                     <tr>
                         <td>Maria Lopez</td>
                         <td>A2</td>
@@ -392,76 +397,111 @@ body{
         </div>
     </div>
 
-    
-<!-- ADMISSIONS -->
-<div id="admissions" class="section">
-    <div class="header">
-        <h4>Admit Patient</h4>
+    <!-- ADMISSIONS -->
+    <div id="admissions" class="section">
+        <div class="header">
+            <h4>Admit Patient</h4>
+            <div class="timebox">
+                <div id="time3"></div>
+                <div id="date3"></div>
+            </div>
+        </div>
 
-        <div class="timebox">
-            <div id="time3"></div>
-            <div id="date3"></div>
+        <div id="admitAlertBox" class="alert"></div>
+
+        <div class="card-box admission-card">
+            <div class="card-header-custom">Admit Patient</div>
+
+            <div class="card-body">
+                <form id="admitForm">
+                    <div class="mb-3">
+                        <label class="form-label">Select Patient</label>
+                        <select id="patientSelect" class="form-select" required>
+                            <option value="">Loading patients...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Ward</label>
+                        <select id="wardSelect" class="form-select" required>
+                            <option value="">Loading wards...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Reason For Admission</label>
+                        <textarea id="reason" class="form-control" rows="3" placeholder="Enter admission reason" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-update" id="admitBtn">Admit Patient</button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div id="admitAlertBox" class="alert"></div>
-
-    <div class="card-box admission-card">
-        <div class="card-header-custom">Admit Patient</div>
-
-        <div class="card-body">
-            <form id="admitForm">
-                <div class="mb-3">
-                    <label class="form-label">Select Patient</label>
-                    <select id="patientSelect" class="form-select" required>
-                        <option value="">Loading patients...</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Select Ward</label>
-                    <select id="wardSelect" class="form-select" required>
-                        <option value="">Loading wards...</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Reason For Admission</label>
-                    <textarea id="reason" class="form-control" rows="3" placeholder="Enter admission reason" required></textarea>
-                </div>
-
-                <button type="submit" class="btn-update" id="admitBtn">Admit Patient</button>
-            </form>
+    <!-- PATIENT DETAILS -->
+    <div id="patient-details" class="section">
+        <div class="header">
+            <h4>Patient Details</h4>
+            <div class="timebox">
+                <div id="time4"></div>
+                <div id="date4"></div>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- WARD OVERVIEW -->
-<div id="ward" class="section">
-    <div class="header">
-        <h4>Ward Overview</h4>
+        <div class="card-box">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h5 class="mb-0">All Patients</h5>
+                <button class="btn btn-primary btn-sm" onclick="loadPatientDetails()">Refresh</button>
+            </div>
 
-        <div class="timebox">
-            <div id="time2"></div>
-            <div id="date2"></div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Ward</th>
+                            <th>Gender</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientDetailsTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Loading patients...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div class="card-box">
-        <h5 class="mb-3">All Wards</h5>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Bed Occupancy</th>
-                    <th>Bed Capacity</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="wardsTableBody"></tbody>
-        </table>
+    <!-- WARD OVERVIEW -->
+    <div id="ward" class="section">
+        <div class="header">
+            <h4>Ward Overview</h4>
+
+            <div class="timebox">
+                <div id="time2"></div>
+                <div id="date2"></div>
+            </div>
+        </div>
+
+        <div class="card-box">
+            <h5 class="mb-3">All Wards</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Bed Occupancy</th>
+                        <th>Bed Capacity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="wardsTableBody"></tbody>
+            </table>
+        </div>
     </div>
-</div>
 
     <!-- PROFILE -->
     <div id="profile" class="section">
@@ -549,11 +589,41 @@ const ADMIT_PATIENT_ENDPOINT = (patientId) => `${API_BASE}/patient/admit/${patie
 const TOKEN_KEY = "mediward_token";
 const USER_KEY = "mediward_user";
 const ROLE_KEY = "mediward_user_role";
+const NURSE_SECTION_KEY = "nurse_active_section";
 
 let currentUser = null;
 
 /* SECTION SWITCH */
-function showSection(id, clickedLink){
+function setActiveSidebar(id, clickedLink = null){
+    document.querySelectorAll(".sidebar a").forEach(link => {
+        link.classList.remove("active");
+    });
+
+    if (clickedLink) {
+        clickedLink.classList.add("active");
+        return;
+    }
+
+    const nav = document.getElementById(`nav-${id}`);
+    if (nav) nav.classList.add("active");
+}
+
+function loadSectionData(id) {
+    if (id === "ward") {
+        loadWards();
+    }
+
+    if (id === "admissions") {
+        loadPatientOptions();
+        loadWardOptions();
+    }
+
+    if (id === "patient-details") {
+        loadPatientDetails();
+    }
+}
+
+function showSection(id, clickedLink = null, save = true){
     document.querySelectorAll(".section").forEach(sec => {
         sec.classList.remove("active");
     });
@@ -563,35 +633,51 @@ function showSection(id, clickedLink){
         target.classList.add("active");
     }
 
-    document.querySelectorAll(".sidebar a").forEach(link => {
-        link.classList.remove("active");
-    });
+    setActiveSidebar(id, clickedLink);
 
-    if (clickedLink) {
-        clickedLink.classList.add("active");
+    if (save) {
+        localStorage.setItem(NURSE_SECTION_KEY, id);
+        window.location.hash = id;
     }
 
-    if (id === "ward") {
-        loadWards();
+    loadSectionData(id);
+}
+
+function restoreNurseSection() {
+    const validSections = [
+        "dashboard",
+        "admissions",
+        "patient-details",
+        "ward",
+        "profile",
+        "password"
+    ];
+
+    const hashSection = window.location.hash.replace("#", "").trim();
+    const savedSection = localStorage.getItem(NURSE_SECTION_KEY);
+
+    let sectionToOpen = "dashboard";
+
+    if (validSections.includes(hashSection)) {
+        sectionToOpen = hashSection;
+    } else if (validSections.includes(savedSection)) {
+        sectionToOpen = savedSection;
     }
 
-    if (id === "admissions") {
-        loadPatientOptions();
-        loadWardOptions();
-    }
+    showSection(sectionToOpen, null, false);
 }
 
 /* CLOCK */
 function updateClock(){
     const now = new Date();
-
     const time = now.toLocaleTimeString();
     const date = now.toDateString();
 
     const ids = [
         ["time", "date"],
         ["time2", "date2"],
-        ["time3", "date3"]
+        ["time3", "date3"],
+        ["time4", "date4"]
     ];
 
     ids.forEach(pair => {
@@ -613,6 +699,7 @@ function redirectToLogin() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(NURSE_SECTION_KEY);
     window.location.href = "login.html";
 }
 
@@ -620,6 +707,7 @@ function signOut() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(NURSE_SECTION_KEY);
     window.location.href = "login.html";
 }
 
@@ -779,6 +867,49 @@ async function loadWards() {
     }
 }
 
+async function loadPatientDetails() {
+    const tbody = document.getElementById("patientDetailsTableBody");
+    if (!tbody) return;
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Loading patients...</td></tr>`;
+
+        const res = await fetchWithAuth(`${PATIENTS_ENDPOINT}?page=1&pageSize=100`, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${result.message || "Failed to load patients"}</td></tr>`;
+            return;
+        }
+
+        const patients = result.data || [];
+
+        if (!patients.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No patients found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = patients.map(patient => `
+            <tr>
+                <td>${safeText(patient.firstname)}</td>
+                <td>${safeText(patient.lastname)}</td>
+                <td>${safeText(patient.ward?.name || patient.ward)}</td>
+                <td>${safeText(patient.gender)}</td>
+                <td>${safeText(patient.email)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Load patient details error:", error);
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Network error loading patients.</td></tr>`;
+    }
+}
+
 async function viewWard(id, name) {
     try {
         const res = await fetchWithAuth(`${WARD_ENDPOINT}/${id}`, {
@@ -825,6 +956,7 @@ async function viewWard(id, name) {
 function closeWardView() {
     document.getElementById("wardViewModal").style.display = "none";
 }
+
 /* LOAD CURRENT USER */
 async function loadCurrentUser() {
     try {
@@ -1077,7 +1209,6 @@ document.getElementById("admitForm").addEventListener("submit", async function(e
     e.preventDefault();
 
     const admitBtn = document.getElementById("admitBtn");
-
     const patientId = document.getElementById("patientSelect").value;
     const wardId = document.getElementById("wardSelect").value;
     const reasonforadmission = document.getElementById("reason").value.trim();
@@ -1115,6 +1246,7 @@ document.getElementById("admitForm").addEventListener("submit", async function(e
 
         loadPatientOptions();
         loadWardOptions();
+        loadPatientDetails();
 
     } catch (error) {
         console.error("Admit patient error:", error);
@@ -1141,6 +1273,7 @@ async function initDashboard() {
     }
 
     await loadCurrentUser();
+    restoreNurseSection();
 
     const loader = document.getElementById("pageLoader");
     if (loader) loader.style.display = "none";

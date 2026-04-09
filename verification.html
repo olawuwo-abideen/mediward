@@ -138,6 +138,7 @@ body{
   margin-top:12px;
   font-size:14px;
   min-height:20px;
+  display:none;
 }
 
 .success{
@@ -150,6 +151,60 @@ body{
 
 .info{
   color:#1b75d0;
+}
+
+/* TOAST POPUP */
+#toast-container{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:99999;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  pointer-events:none;
+}
+
+.toast-msg{
+  min-width:260px;
+  max-width:360px;
+  padding:14px 18px;
+  border-radius:12px;
+  color:#fff;
+  font-weight:600;
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  animation:slideInRight 0.35s ease, fadeOutRight 0.35s ease 2.65s forwards;
+}
+
+.toast-success{
+  background:#10b981;
+}
+
+.toast-error{
+  background:#ef4444;
+}
+
+.toast-info{
+  background:#3b82f6;
+}
+
+@keyframes slideInRight{
+  from{
+    opacity:0;
+    transform:translateX(60px);
+  }
+  to{
+    opacity:1;
+    transform:translateX(0);
+  }
+}
+
+@keyframes fadeOutRight{
+  to{
+    opacity:0;
+    transform:translateX(60px);
+  }
 }
 
 @media (max-width: 900px){
@@ -165,6 +220,19 @@ body{
   .card{
     width:100%;
     max-width:420px;
+  }
+
+  #toast-container{
+    right:12px;
+    left:12px;
+    bottom:12px;
+    align-items:stretch;
+  }
+
+  .toast-msg{
+    min-width:auto;
+    max-width:none;
+    width:100%;
   }
 }
 </style>
@@ -215,6 +283,8 @@ body{
 
 </div>
 
+<div id="toast-container"></div>
+
 <script>
 const inputs = document.querySelectorAll(".code-inputs input");
 const verifyBtn = document.getElementById("verifyBtn");
@@ -224,6 +294,22 @@ const resendBtn = document.getElementById("resend");
 const emailLabel = document.getElementById("emailLabel");
 const codeInputs = document.getElementById("codeInputs");
 const API_BASE = "https://mediwardbackend.vercel.app/auth";
+
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  const mappedType = type === "danger" ? "error" : type;
+  toast.className = `toast-msg toast-${mappedType}`;
+  toast.innerText = message;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
 
 function getSavedEmail() {
   return localStorage.getItem("verificationEmail");
@@ -242,6 +328,7 @@ function updateEmailLabel() {
 function showMessage(text, type) {
   messageBox.className = "message " + type;
   messageBox.innerText = text;
+  showToast(text, type);
 }
 
 function getCode() {

@@ -41,7 +41,8 @@ body{
   cursor:pointer;
 }
 
-.sidebar a:hover{
+.sidebar a:hover,
+.sidebar a.active-link{
   background:#374151;
 }
 
@@ -229,12 +230,12 @@ body{
 <div class="sidebar">
   <div>
     <h4>MediWard Admin</h4>
-    <a onclick="showSection('dashboard')">Dashboard</a>
-    <a onclick="showSection('users')">Users</a>
-    <a onclick="showSection('staff')">Staff</a>
-    <a onclick="showSection('wards')">Wards</a>
-    <a onclick="showSection('teams')">Teams</a>
-    <a onclick="showSection('reports')">Reports</a>
+    <a id="nav-dashboard" onclick="showSection('dashboard')">Dashboard</a>
+    <a id="nav-users" onclick="showSection('users')">Users</a>
+    <a id="nav-staff" onclick="showSection('staff')">Staff</a>
+    <a id="nav-wards" onclick="showSection('wards')">Wards</a>
+    <a id="nav-teams" onclick="showSection('teams')">Teams</a>
+    <a id="nav-reports" onclick="showSection('reports')">Reports</a>
   </div>
   <a onclick="handleLogout()" class="logout">Logout</a>
 </div>
@@ -242,7 +243,7 @@ body{
 <div class="main">
 
   <!-- DASHBOARD -->
-  <div id="dashboard" class="section active">
+  <div id="dashboard" class="section">
     <h3 class="mb-4">MediwardAdmin Dashboard</h3>
 
     <div class="row g-4">
@@ -426,6 +427,7 @@ const TOKEN = localStorage.getItem('aura_admin_token');
 if (!TOKEN) window.location.href = 'admin-login.html';
 
 const API_BASE = "https://mediwardbackend.vercel.app/admin";
+const SECTION_KEY = "admin_active_section";
 
 function headers() {
   return {
@@ -480,14 +482,34 @@ async function handleLogout() {
   try {
     await fetch(API_BASE + "/logout", { method: "POST", headers: headers() });
   } catch (_) {}
+
   localStorage.removeItem('aura_admin_token');
+  localStorage.removeItem(SECTION_KEY);
   window.location.href = "admin-login.html";
 }
 
 // ── NAVIGATION ─────────────────────────────────────────────────
-function showSection(id) {
+function setActiveNav(id) {
+  document.querySelectorAll(".sidebar a").forEach(link => {
+    link.classList.remove("active-link");
+  });
+
+  const nav = document.getElementById(`nav-${id}`);
+  if (nav) nav.classList.add("active-link");
+}
+
+function showSection(id, save = true) {
+  const target = document.getElementById(id);
+  if (!target) return;
+
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  target.classList.add("active");
+  setActiveNav(id);
+
+  if (save) {
+    localStorage.setItem(SECTION_KEY, id);
+    window.location.hash = id;
+  }
 
   if (id === "wards") loadWards();
 
@@ -495,6 +517,20 @@ function showSection(id) {
     loadTeams();
     loadUserOptions();
   }
+
+  if (id === "reports") {
+    loadReportsAutomatically();
+  }
+}
+function restoreSection() {
+  const hashSection = window.location.hash.replace("#", "").trim();
+  const savedSection = localStorage.getItem(SECTION_KEY);
+  const validSections = ["dashboard", "users", "staff", "wards", "teams", "reports"];
+  const sectionToOpen = validSections.includes(hashSection)
+    ? hashSection
+    : (validSections.includes(savedSection) ? savedSection : "dashboard");
+
+  showSection(sectionToOpen, false);
 }
 
 // ── DASHBOARD COUNTS ───────────────────────────────────────────
@@ -528,8 +564,6 @@ async function loadCounts() {
     showToast("Failed to load dashboard counts.", "error");
   }
 }
-
-loadCounts();
 
 // ── USERS ──────────────────────────────────────────────────────
 async function loadUsers() {
@@ -567,8 +601,6 @@ async function loadUsers() {
     showToast("Failed to load users.", "error");
   }
 }
-
-loadUsers();
 
 async function deleteUser(id, btn) {
   const confirmed = await customConfirm(
@@ -641,8 +673,6 @@ async function loadStaff() {
   }
 }
 
-loadStaff();
-
 // ── WARDS ──────────────────────────────────────────────────────
 async function createWard() {
   const name = document.getElementById("wardName").value.trim();
@@ -667,7 +697,7 @@ async function createWard() {
     const data = await res.json();
 
     if (res.ok) {
-      showToast(`Ward "${data.ward?.name ?? name}" created successfully!`, "success");
+      showToast("Ward created successfully!", "success");
       document.getElementById("wardName").value = "";
       loadWards();
       loadCounts();
@@ -836,7 +866,7 @@ async function viewWard(id, name) {
 
     if (!patients.length) {
       document.getElementById("wardPatientsTable").innerHTML =
-        '<tr><td colspan="5" class="text-center text-muted">No patients in this ward</td></tr>';
+        '<tr><td colspan="4" class="text-center text-muted">No patients in this ward</td></tr>';
     } else {
       document.getElementById("wardPatientsTable").innerHTML = patients.map(p => `
         <tr>
@@ -859,6 +889,9 @@ function closeWardView() {
   document.getElementById("wardViewModal").style.display = "none";
 }
 
+async function loadReportsAutomatically() {
+  await getAdmissions(); // default report to show automatically
+}
 // ── REPORTS ────────────────────────────────────────────────────
 async function getAdmissions() {
   try {
@@ -1065,14 +1098,6 @@ async function getAppointments() {
     showToast("Error fetching appointments.", "error");
   }
 }
-
-// ── AUTO REFRESH EVERY 60 SECONDS ──────────────────────────────
-setInterval(() => {
-  loadCounts();
-  loadUsers();
-  loadStaff();
-  console.log("Dashboard refreshed");
-}, 60000);
 
 // ── TEAMS ──────────────────────────────────────────────────────
 async function loadTeams() {
@@ -1405,6 +1430,34 @@ async function addUserToTeam() {
     showToast("Network error", "error");
   }
 }
+
+// ── INITIAL LOAD ───────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  restoreSection();
+  loadCounts();
+  loadUsers();
+  loadStaff();
+
+  const activeSection = localStorage.getItem(SECTION_KEY) || window.location.hash.replace("#", "") || "dashboard";
+  if (activeSection === "reports") {
+    loadReportsAutomatically();
+  }
+});
+// ── AUTO REFRESH EVERY 60 SECONDS ──────────────────────────────
+setInterval(() => {
+  loadCounts();
+  loadUsers();
+  loadStaff();
+
+  const activeSection = localStorage.getItem(SECTION_KEY) || window.location.hash.replace("#", "");
+  if (activeSection === "wards") loadWards();
+  if (activeSection === "teams") {
+    loadTeams();
+    loadUserOptions();
+  }
+
+  console.log("Dashboard refreshed");
+}, 60000);
 </script>
 </body>
 </html>

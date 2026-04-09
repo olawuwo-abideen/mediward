@@ -8,7 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --dark: #0f172a; --soft-bg: #f8fafc; --success: #10b981; }
+        :root {
+            --primary: #2563eb;
+            --dark: #0f172a;
+            --soft-bg: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
 
         body {
             background: white;
@@ -17,12 +24,12 @@
             margin: 0;
         }
 
-        .navbar{
+        .navbar {
             background: rgba(230, 233, 255, 0.85);
             backdrop-filter: blur(14px);
         }
 
-        .nav-link i{
+        .nav-link i {
             margin-right: 6px;
         }
 
@@ -33,11 +40,13 @@
 
         .left-side {
             flex: 1.2;
-            background: linear-gradient(to right,
+            background: linear-gradient(
+                        to right,
                         rgba(15, 23, 42, 0.9) 0%,
                         rgba(15, 23, 42, 0.4) 50%,
-                        rgba(15, 23, 42, 0.1) 100%),
-                        url('https://st.depositphotos.com/1907633/2184/i/450/depositphotos_21841631-stock-photo-success-smart-medical-doctor-with.jpg');
+                        rgba(15, 23, 42, 0.1) 100%
+                    ),
+                    url('https://st.depositphotos.com/1907633/2184/i/450/depositphotos_21841631-stock-photo-success-smart-medical-doctor-with.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -62,13 +71,21 @@
             max-width: 480px;
         }
 
-        .form-control {
+        .form-control,
+        .form-select {
             border-radius: 12px;
             padding: 12px;
             border: 1px solid #e2e8f0;
             font-size: 14px;
             transition: 0.3s;
             background: white;
+            box-shadow: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
         }
 
         .btn-auth {
@@ -90,15 +107,6 @@
         .btn-auth:disabled {
             background: #93c5fd;
             cursor: not-allowed;
-        }
-
-        .alert-custom {
-            display: none;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 20px;
         }
 
         .phone-group {
@@ -124,45 +132,154 @@
             border-radius: 0 12px 12px 0;
         }
 
+        .password-note {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .strength-meter {
+            height: 6px;
+            background: #e2e8f0;
+            margin-top: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: 0.3s ease;
+            border-radius: 999px;
+        }
+
+        .strength-text {
+            display: block;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* TOAST */
+        #toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast-msg {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            animation: slideInRight 0.35s ease, fadeOutRight 0.35s ease 3.15s forwards;
+        }
+
+        .toast-success {
+            background: #10b981;
+        }
+
+        .toast-error {
+            background: #ef4444;
+        }
+
+        .toast-info {
+            background: #3b82f6;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOutRight {
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+        }
+
         @media (max-width: 992px) {
-            .left-side { display: none; }
-            .split-screen { min-height: auto; }
-            .right-side { min-height: calc(100vh - 76px); }
+            .left-side {
+                display: none;
+            }
+
+            .split-screen {
+                min-height: auto;
+            }
+
+            .right-side {
+                min-height: calc(100vh - 76px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #toast-container {
+                right: 12px;
+                left: 12px;
+                bottom: 12px;
+                align-items: stretch;
+            }
+
+            .toast-msg {
+                min-width: auto;
+                max-width: none;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg sticky-top">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="index.html">
-      <img src="image/logo mediward.png" alt="Logo" style="height:48px; margin-right:10px;">
-      <span class="fw-bold text-primary">MediWard</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="nav">
-      <ul class="navbar-nav ms-auto fw-semibold align-items-center">
-        <li class="nav-item"><a class="nav-link px-3" href="index.html"><i class="fa-solid fa-microchip"></i>Home</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="./about-us.html"><i class="fa-solid fa-circle-info"></i>About Us</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="./compliance.html"><i class="fa-solid fa-shield-halved"></i>Compliance</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="./contact-us.html"><i class="fa-solid fa-phone"></i>Contact Us</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="./login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i>Login</a></li>
-        <li class="nav-item ms-lg-3">
-          <div class="dropdown">
-            <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              <i class="fa-solid fa-right-to-bracket me-2"></i>Signup
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-4">
-              <li><a class="dropdown-item rounded-3 py-2" href="patient-signup.html">Patient Signup</a></li>
-              <li><a class="dropdown-item rounded-3 py-2" href="staff-signup.html">Staff Signup</a></li>
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <img src="image/logo mediward.png" alt="Logo" style="height:48px; margin-right:10px;">
+            <span class="fw-bold text-primary">MediWard</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto fw-semibold align-items-center">
+                <li class="nav-item"><a class="nav-link px-3" href="index.html"><i class="fa-solid fa-microchip"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="./about-us.html"><i class="fa-solid fa-circle-info"></i>About Us</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="./compliance.html"><i class="fa-solid fa-shield-halved"></i>Compliance</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="./contact-us.html"><i class="fa-solid fa-phone"></i>Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="./login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i>Login</a></li>
+                <li class="nav-item ms-lg-3">
+                    <div class="dropdown">
+                        <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i>Signup
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-4">
+                            <li><a class="dropdown-item rounded-3 py-2" href="patient-signup.html">Patient Signup</a></li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="staff-signup.html">Staff Signup</a></li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
-          </div>
-        </li>
-      </ul>
+        </div>
     </div>
-  </div>
 </nav>
 
 <div class="split-screen">
@@ -173,6 +290,7 @@
 
         <h1 class="display-4 fw-800 mb-4">Your Health, <br>Our Priority.</h1>
         <p class="lead opacity-75 mb-5">A secure clinical gateway for hospital staff to manage patient observations efficiently.</p>
+
         <div class="d-flex gap-4 border-top pt-4 border-white border-opacity-25">
             <div><h5 class="mb-0 fw-bold">AES-256</h5><small class="opacity-50">Encryption</small></div>
             <div><h5 class="mb-0 fw-bold">Staff Only</h5><small class="opacity-50">Access</small></div>
@@ -181,8 +299,6 @@
 
     <div class="right-side">
         <div class="auth-box">
-            <div id="authAlert" class="alert-custom"></div>
-
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="signupPane">
                     <form id="signupForm">
@@ -219,23 +335,23 @@
                             <small class="text-muted">Enter 10 digits after +44</small>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="small fw-bold mb-1">Gender</label>
-                            <select id="gender" class="form-control" required>
-                                <option value="" disabled selected>Select your gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
+<div class="mb-3">
+    <label class="small fw-bold mb-1">Gender</label>
+    <select id="gender" class="form-select" required>
+        <option value="" disabled selected>Select your gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+</div>
 
-                        <div class="mb-3">
-                            <label class="small fw-bold mb-1">Role</label>
-                            <select id="role" class="form-control" required>
-                                <option value="" disabled selected>Select your role</option>
-                                <option value="Doctor">Doctor</option>
-                                <option value="Nurse">Nurse</option>
-                            </select>
-                        </div>
+<div class="mb-3">
+    <label class="small fw-bold mb-1">Role</label>
+    <select id="role" class="form-select" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="Doctor">Doctor</option>
+        <option value="Nurse">Nurse</option>
+    </select>
+</div>
 
                         <div class="mb-3">
                             <label class="small fw-bold mb-1">Email Address</label>
@@ -243,8 +359,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="small fw-bold mb-1">Create Password (8+ characters)</label>
-                            <input type="password" id="regPass" class="form-control" minlength="8" required>
+                            <label class="small fw-bold mb-1">Create Password</label>
+                            <input
+                                type="password"
+                                id="regPass"
+                                class="form-control"
+                                placeholder="Enter a strong password"
+                                minlength="6"
+                                maxlength="20"
+                                required
+                            >
+                            <div class="strength-meter">
+                                <div id="strengthBar" class="strength-bar"></div>
+                            </div>
+                            <span id="strengthText" class="strength-text">Password strength</span>
+                            <small class="password-note">
+                                Password must be 6–20 characters and include uppercase, lowercase, number, and special character.
+                            </small>
                         </div>
 
                         <div class="mb-4">
@@ -271,27 +402,44 @@
     </div>
 </div>
 
+<div id="toast-container"></div>
+
 <script>
-    const authAlert = document.getElementById('authAlert');
     const signupForm = document.getElementById('signupForm');
     const signupBtn = document.getElementById('signupBtn');
     const phoneInput = document.getElementById('regPhone');
+    const passwordInput = document.getElementById('regPass');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+
+    const API_URL = "https://mediwardbackend.vercel.app/auth/staff/signup";
 
     phoneInput.addEventListener('input', function () {
         this.value = this.value.replace(/\D/g, '').slice(0, 10);
     });
 
-    function showAlert(msg, type) {
-        authAlert.style.display = 'block';
-        authAlert.innerText = msg;
-        authAlert.style.background = type === 'error' ? '#fff5f5' : '#f0fff4';
-        authAlert.style.color = type === 'error' ? '#c53030' : '#22543d';
-        authAlert.style.border = type === 'error' ? '1px solid #feb2b2' : '1px solid #9ae6b4';
+    passwordInput.addEventListener('input', function () {
+        updatePasswordStrength(this.value);
+    });
+
+    function showToast(message, type = "info") {
+        const container = document.getElementById("toast-container");
+
+        const toast = document.createElement("div");
+        toast.className = `toast-msg toast-${type}`;
+        toast.innerText = message;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3500);
     }
 
     function calculateAge(dateString) {
         const dob = new Date(dateString);
         const today = new Date();
+
         let age = today.getFullYear() - dob.getFullYear();
         const monthDiff = today.getMonth() - dob.getMonth();
 
@@ -302,12 +450,84 @@
         return age;
     }
 
+    function validatePassword(password) {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`|•√π×£¢€¥^={}%✓\]<@#$_&\-+()/?!;:'"*.,])[A-Za-z\d~`|•√π×£¢€¥^={}%✓\]<@#$_&\-+()/?!;:'"*.,]+$/;
+
+        if (password.length < 6 || password.length > 20) {
+            return {
+                valid: false,
+                message: "Password must be between 6 and 20 characters."
+            };
+        }
+
+        if (!passwordRegex.test(password)) {
+            return {
+                valid: false,
+                message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+            };
+        }
+
+        return {
+            valid: true,
+            message: "Password is valid."
+        };
+    }
+
+    function updatePasswordStrength(password) {
+        let score = 0;
+
+        if (password.length >= 6) score += 20;
+        if (/[a-z]/.test(password)) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/\d/.test(password)) score += 20;
+        if (/[~`|•√π×£¢€¥^={}%✓\]<@#$_&\-+()/?!;:'"*.,]/.test(password)) score += 20;
+
+        strengthBar.style.width = score + "%";
+
+        if (!password) {
+            strengthBar.style.background = "#e2e8f0";
+            strengthText.textContent = "Password strength";
+            strengthText.style.color = "#64748b";
+            return;
+        }
+
+        if (score <= 40) {
+            strengthBar.style.background = "#ef4444";
+            strengthText.textContent = "Weak password";
+            strengthText.style.color = "#ef4444";
+        } else if (score <= 80) {
+            strengthBar.style.background = "#f59e0b";
+            strengthText.textContent = "Medium password";
+            strengthText.style.color = "#f59e0b";
+        } else {
+            strengthBar.style.background = "#10b981";
+            strengthText.textContent = "Strong password";
+            strengthText.style.color = "#10b981";
+        }
+    }
+
+    function extractErrorMessage(result) {
+        if (!result) return "Signup failed.";
+
+        if (Array.isArray(result.message) && result.message.length > 0) {
+            return result.message[0];
+        }
+
+        if (typeof result.message === "string" && result.message.trim()) {
+            return result.message;
+        }
+
+        if (typeof result.error === "string" && result.error.trim()) {
+            return result.error;
+        }
+
+        return "Signup failed.";
+    }
+
     signupForm.addEventListener('submit', handleSignup);
 
     async function handleSignup(e) {
         e.preventDefault();
-
-        authAlert.style.display = 'none';
 
         const firstname = document.getElementById('regFirst').value.trim();
         const lastname = document.getElementById('regLast').value.trim();
@@ -317,14 +537,31 @@
         const role = document.getElementById('role').value;
         const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const password = document.getElementById('regPass').value;
+        const consent = document.getElementById('consent').checked;
+
+        if (!firstname || !lastname || !dob || !phoneDigits || !gender || !role || !email || !password) {
+            showToast("Please fill in all required fields.", "error");
+            return;
+        }
+
+        if (!consent) {
+            showToast("You must agree to the terms and conditions.", "error");
+            return;
+        }
 
         if (calculateAge(dob) < 18) {
-            showAlert("Access Denied: You must be 18 or older.", "error");
+            showToast("Access Denied: You must be 18 or older.", "error");
             return;
         }
 
         if (!/^\d{10}$/.test(phoneDigits)) {
-            showAlert("Enter a valid UK number with 10 digits after +44.", "error");
+            showToast("Enter a valid UK number with 10 digits after +44.", "error");
+            return;
+        }
+
+        const passwordCheck = validatePassword(password);
+        if (!passwordCheck.valid) {
+            showToast(passwordCheck.message, "error");
             return;
         }
 
@@ -343,33 +580,27 @@
         signupBtn.textContent = "Signing up...";
 
         try {
-            const response = await fetch("https://mediwardbackend.vercel.app/auth/staff/signup", {
+            const response = await fetch(API_URL, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify(payload)
             });
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                let errorMessage = "Signup failed";
-
-                if (Array.isArray(result.message)) {
-                    errorMessage = result.message.join(", ");
-                } else if (result.message) {
-                    errorMessage = result.message;
-                }
-
-                showAlert(errorMessage, "error");
+                const errorMessage = extractErrorMessage(result);
+                showToast(errorMessage, "error");
                 signupBtn.disabled = false;
                 signupBtn.textContent = "Signup";
                 return;
             }
 
             localStorage.setItem("verificationEmail", email);
-            showAlert("Signup successful. Redirecting to verification page...", "success");
+            showToast("Signup successful. Redirecting to verification page...", "success");
 
             setTimeout(() => {
                 window.location.href = "verification.html";
@@ -377,7 +608,7 @@
 
         } catch (error) {
             console.error(error);
-            showAlert("Unable to connect to server. Please try again.", "error");
+            showToast("Unable to connect to server. Please try again.", "error");
             signupBtn.disabled = false;
             signupBtn.textContent = "Signup";
         }

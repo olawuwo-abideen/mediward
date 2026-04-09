@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+
 :root{
     --primary:#1877c9;
     --primary-dark:#145e9c;
@@ -237,12 +238,69 @@ body{
 
 #admitAlertBox,
 #dischargeAlertBox,
-#transferAlertBox{
-    display:none;
+#transferAlertBox,
+#appointmentAlertBox,
+#alertMsg,
+#passwordMessage{
+    display:none !important;
 }
 
 .table-responsive{
     overflow-x:auto;
+}
+
+/* TOAST POPUP */
+#toast-container{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:99999;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+    pointer-events:none;
+}
+
+.toast-msg{
+    min-width:260px;
+    max-width:360px;
+    padding:14px 18px;
+    border-radius:12px;
+    color:#fff;
+    font-weight:600;
+    box-shadow:0 10px 25px rgba(0,0,0,0.25);
+    animation:slideInRight 0.35s ease, fadeOutRight 0.35s ease 2.65s forwards;
+}
+
+.toast-success{
+    background:#10b981;
+}
+
+.toast-error{
+    background:#ef4444;
+}
+
+.toast-info{
+    background:#3b82f6;
+}
+
+@keyframes slideInRight{
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes fadeOutRight{
+    to{
+        opacity:0;
+        transform:translateX(60px);
+    }
 }
 
 @media (max-width:768px){
@@ -269,6 +327,19 @@ body{
 
     .timebox{
         text-align:left;
+    }
+
+    #toast-container{
+        right:12px;
+        left:12px;
+        bottom:12px;
+        align-items:stretch;
+    }
+
+    .toast-msg{
+        min-width:auto;
+        max-width:none;
+        width:100%;
     }
 }
 </style>
@@ -298,41 +369,47 @@ body{
 
 <div id="pageLoader" class="loading-box">Loading doctor portal...</div>
 
+<!-- TOAST -->
+<div id="toast-container"></div>
+
 <!-- SIDEBAR -->
 <div class="sidebar">
     <div>
         <h5>Doctor Dashboard</h5>
 
-        <a onclick="showSection('dashboard', this)" class="active">
+        <a id="nav-dashboard" onclick="showSection('dashboard', this)">
             <i class="fa fa-home"></i> Dashboard
         </a>
 
-        <a onclick="showSection('admissions', this)">
+        <a id="nav-patient-details" onclick="showSection('patient-details', this)">
+    <i class="fa fa-users"></i> Patient Details
+</a>
+
+        <a id="nav-admissions" onclick="showSection('admissions', this)">
             <i class="fa fa-user-plus"></i> Admit Patient
         </a>
 
-        <a onclick="showSection('transfers', this)">
+        <a id="nav-transfers" onclick="showSection('transfers', this)">
             <i class="fa fa-random"></i> Transfer Patient
         </a>
 
-        <a onclick="showSection('discharges', this)">
+        <a id="nav-discharges" onclick="showSection('discharges', this)">
             <i class="fa fa-sign-out-alt"></i> Discharge Patient
         </a>
 
-        <a onclick="showSection('appointment', this)">
-    <i class="fa fa-calendar-plus"></i> Appointment
-</a>
+        <a id="nav-appointment" onclick="showSection('appointment', this)">
+            <i class="fa fa-calendar-plus"></i> Appointment
+        </a>
 
-        <a onclick="showSection('ward', this)">
+        <a id="nav-ward" onclick="showSection('ward', this)">
             <i class="fa fa-bed"></i> Ward Overview
         </a>
 
-
-        <a onclick="showSection('profile', this)">
+        <a id="nav-profile" onclick="showSection('profile', this)">
             <i class="fa fa-user-edit"></i> Update Profile
         </a>
 
-        <a onclick="showSection('password', this)">
+        <a id="nav-password" onclick="showSection('password', this)">
             <i class="fa fa-lock"></i> Update Password
         </a>
     </div>
@@ -344,7 +421,7 @@ body{
 <div class="main">
 
     <!-- DASHBOARD -->
-    <div id="dashboard" class="section active">
+    <div id="dashboard" class="section">
         <div class="header">
             <div>
                 <h4>Welcome, <span id="username">Doctor</span></h4>
@@ -417,7 +494,45 @@ body{
         </div>
     </div>
 
-    
+
+    <!-- PATIENT DETAILS -->
+<div id="patient-details" class="section">
+    <div class="header">
+        <h4>Patient Details</h4>
+
+        <div class="timebox">
+            <div id="time4"></div>
+            <div id="date4"></div>
+        </div>
+    </div>
+
+    <div class="card-box">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h5 class="mb-0">All Patients</h5>
+            <button class="btn btn-primary btn-sm" onclick="loadPatientDetails()">Refresh</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Ward</th>
+                        <th>Gender</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="patientDetailsTableBody">
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Loading patients...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <!-- ADMISSIONS -->
 <div id="admissions" class="section">
     <div class="header">
@@ -432,8 +547,6 @@ body{
     <div id="admitAlertBox" class="alert"></div>
 
     <div class="card-box admission-card">
-        <!-- <div class="card-header-custom">Admit Patient</div> -->
-
         <div class="card-body">
             <form id="admitForm">
                 <div class="mb-3">
@@ -461,9 +574,7 @@ body{
     </div>
 </div>
 
-
-
-    <!-- TRANSFERS -->
+<!-- TRANSFERS -->
 <div id="transfers" class="section">
     <div class="header">
         <h4>Transfer Patient</h4>
@@ -506,7 +617,7 @@ body{
     </div>
 </div>
 
-    <!-- DISCHARGES -->
+<!-- DISCHARGES -->
 <div id="discharges" class="section">
     <div class="header">
         <h4>Discharge Patient</h4>
@@ -541,7 +652,6 @@ body{
         </div>
     </div>
 </div>
-
 
 <!-- APPOINTMENT -->
 <div id="appointment" class="section">
@@ -598,8 +708,7 @@ body{
     </div>
 </div>
 
-
-    <!-- WARD OVERVIEW -->
+<!-- WARD OVERVIEW -->
 <div id="ward" class="section">
     <div class="header">
         <h4>Ward Overview</h4>
@@ -625,74 +734,75 @@ body{
         </table>
     </div>
 </div>
-    <!-- PROFILE -->
-    <div id="profile" class="section">
-        <h2>Update Profile</h2>
-        <div class="card-box profile-card">
-            <div id="alertMsg" class="alert-custom"></div>
 
-            <form id="updateProfileForm">
-                <div class="mb-3">
-                    <label class="form-label">First Name</label>
-                    <input type="text" id="firstname" class="form-control" placeholder="John" required>
-                </div>
+<!-- PROFILE -->
+<div id="profile" class="section">
+    <h2>Update Profile</h2>
+    <div class="card-box profile-card">
+        <div id="alertMsg" class="alert-custom"></div>
 
-                <div class="mb-3">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" id="lastname" class="form-control" placeholder="Doe" required>
-                </div>
+        <form id="updateProfileForm">
+            <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" id="firstname" class="form-control" placeholder="John" required>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Date of Birth</label>
-                    <input type="date" id="dob" class="form-control">
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" id="lastname" class="form-control" placeholder="Doe" required>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" id="phonenumber" class="form-control" placeholder="08012345678">
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" id="dob" class="form-control">
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Gender</label>
-                    <select id="gender" class="form-select">
-                        <option value="">Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="phonenumber" class="form-control" placeholder="08012345678">
+            </div>
 
-                <button type="submit" class="btn-update" id="profileBtn">Update Profile</button>
-            </form>
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select id="gender" class="form-select">
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-update" id="profileBtn">Update Profile</button>
+        </form>
     </div>
+</div>
 
-    <!-- PASSWORD -->
-    <div id="password" class="section">
-        <div class="card-box password-wrapper">
-            <h3 class="mb-4">Change Password</h3>
+<!-- PASSWORD -->
+<div id="password" class="section">
+    <div class="card-box password-wrapper">
+        <h3 class="mb-4">Change Password</h3>
 
-            <div id="passwordMessage" class="message"></div>
+        <div id="passwordMessage" class="message"></div>
 
-            <form id="passwordForm">
-                <div class="mb-3">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" id="currentPassword" class="form-control" required>
-                </div>
+        <form id="passwordForm">
+            <div class="mb-3">
+                <label class="form-label">Current Password</label>
+                <input type="password" id="currentPassword" class="form-control" required>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">New Password</label>
-                    <input type="password" id="newPassword" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input type="password" id="newPassword" class="form-control" required>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Confirm New Password</label>
-                    <input type="password" id="confirmPassword" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmPassword" class="form-control" required>
+            </div>
 
-                <button type="submit" class="btn-update" id="passwordBtn">Update Password</button>
-            </form>
-        </div>
+            <button type="submit" class="btn-update" id="passwordBtn">Update Password</button>
+        </form>
     </div>
+</div>
 
 </div>
 
@@ -711,14 +821,76 @@ const ADMIT_PATIENT_ENDPOINT = (patientId) => `${API_BASE}/patient/admit/${patie
 const DISCHARGE_PATIENT_ENDPOINT = (patientId) => `${API_BASE}/patient/discharge/${patientId}`;
 const APPOINTMENT_ENDPOINT = `${API_BASE}/availabilityslot`;
 
+
 const TOKEN_KEY = "mediward_token";
 const USER_KEY = "mediward_user";
 const ROLE_KEY = "mediward_user_role";
+const DOCTOR_SECTION_KEY = "doctor_active_section";
 
 let currentUser = null;
+let createdAppointments = [];
+
+/* TOAST POPUP */
+function showToast(message, type = "info") {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    const mappedType = type === "danger" ? "error" : type;
+    toast.className = `toast-msg toast-${mappedType}`;
+    toast.innerText = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
 
 /* SECTION SWITCH */
-function showSection(id, clickedLink){
+function setActiveSidebar(id, clickedLink = null) {
+    document.querySelectorAll(".sidebar a").forEach(link => {
+        link.classList.remove("active");
+    });
+
+    if (clickedLink) {
+        clickedLink.classList.add("active");
+        return;
+    }
+
+    const nav = document.getElementById(`nav-${id}`);
+    if (nav) nav.classList.add("active");
+}
+
+function loadSectionData(id) {
+    if (id === "ward") {
+        loadWards();
+    }
+
+    if (id === "admissions") {
+        loadPatientOptions();
+        loadWardOptions();
+    }
+
+    if (id === "transfers") {
+        loadTransferPatientOptions();
+        loadTransferWardOptions();
+    }
+
+    if (id === "discharges") {
+        loadDischargePatientOptions();
+    }
+
+    if (id === "appointment") {
+        renderAppointmentTable();
+    }
+
+        if (id === "patient-details") {
+        loadPatientDetails();
+    }
+}
+
+function showSection(id, clickedLink = null, save = true){
     document.querySelectorAll(".section").forEach(sec => {
         sec.classList.remove("active");
     });
@@ -728,35 +900,40 @@ function showSection(id, clickedLink){
         target.classList.add("active");
     }
 
-    document.querySelectorAll(".sidebar a").forEach(link => {
-        link.classList.remove("active");
-    });
+    setActiveSidebar(id, clickedLink);
 
-    if (clickedLink) {
-        clickedLink.classList.add("active");
+    if (save) {
+        localStorage.setItem(DOCTOR_SECTION_KEY, id);
+        window.location.hash = id;
     }
 
-            if (id === "ward") {
-        loadWards();
-    }
-
-        if (id === "admissions") {
-        loadPatientOptions();
-        loadWardOptions();
-    }
-
-       if (id === "transfers") {
-        loadTransferPatientOptions();
-        loadTransferWardOptions();
-    }
-
-        if (id === "discharges") {
-        loadDischargePatientOptions();
-    }
-
-    if (id === "appointment") {
-    renderAppointmentTable();
+    loadSectionData(id);
 }
+
+function restoreDoctorSection() {
+    const validSections = [
+        "dashboard",
+        "admissions",
+        "transfers",
+        "discharges",
+        "appointment",
+        "ward",
+        "profile",
+        "password"
+    ];
+
+    const hashSection = window.location.hash.replace("#", "").trim();
+    const savedSection = localStorage.getItem(DOCTOR_SECTION_KEY);
+
+    let sectionToOpen = "dashboard";
+
+    if (validSections.includes(hashSection)) {
+        sectionToOpen = hashSection;
+    } else if (validSections.includes(savedSection)) {
+        sectionToOpen = savedSection;
+    }
+
+    showSection(sectionToOpen, null, false);
 }
 
 /* CLOCK */
@@ -793,6 +970,7 @@ function redirectToLogin() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(DOCTOR_SECTION_KEY);
     window.location.href = "login.html";
 }
 
@@ -800,12 +978,37 @@ function signOut() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem(DOCTOR_SECTION_KEY);
     window.location.href = "login.html";
 }
 
 function safeText(value, fallback = "--") {
     if (value === null || value === undefined || value === "") return fallback;
     return value;
+}
+
+function restoreDoctorSection() {
+    const validSections = [
+        "dashboard",
+        "admissions",
+        "patient-details",
+        "ward",
+        "profile",
+        "password"
+    ];
+
+    const hashSection = window.location.hash.replace("#", "").trim();
+    const savedSection = localStorage.getItem(DOCTOR_SECTION_KEY);
+
+    let sectionToOpen = "dashboard";
+
+    if (validSections.includes(hashSection)) {
+        sectionToOpen = hashSection;
+    } else if (validSections.includes(savedSection)) {
+        sectionToOpen = savedSection;
+    }
+
+    showSection(sectionToOpen, null, false);
 }
 
 async function fetchWithAuth(url, options = {}) {
@@ -845,8 +1048,6 @@ function formatDateForInput(dateString) {
     return `${year}-${month}-${day}`;
 }
 
-let createdAppointments = [];
-
 function formatDisplayDate(dateString) {
     if (!dateString) return "--";
     const date = new Date(dateString);
@@ -876,82 +1077,34 @@ function renderAppointmentTable() {
     `).join("");
 }
 
-/* PROFILE ALERT */
+/* OLD ALERT FUNCTIONS NOW USE TOAST */
 function showAlert(message, type = "success") {
-    const alertMsg = document.getElementById("alertMsg");
-    if (!alertMsg) return;
-
-    alertMsg.style.display = "block";
-    alertMsg.innerText = message;
-    alertMsg.style.padding = "12px";
-    alertMsg.style.borderRadius = "10px";
-    alertMsg.style.marginBottom = "20px";
-    alertMsg.style.fontWeight = "600";
-
-    if (type === "error") {
-        alertMsg.style.background = "#fee2e2";
-        alertMsg.style.color = "#991b1b";
-        alertMsg.style.border = "1px solid #ef4444";
-    } else {
-        alertMsg.style.background = "#d1fae5";
-        alertMsg.style.color = "#065f46";
-        alertMsg.style.border = "1px solid #10b981";
-    }
-
-    setTimeout(() => {
-        alertMsg.style.display = "none";
-        alertMsg.innerText = "";
-    }, 3000);
+    showToast(message, type === "error" ? "error" : "success");
 }
 
-/* ACTION ALERTS */
 function showAdmitAlert(message, type = "success"){
-    const alertBox = document.getElementById("admitAlertBox");
-    if (!alertBox) return;
-    alertBox.style.display = "block";
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerText = message;
-
-    setTimeout(() => {
-        alertBox.style.display = "none";
-    }, 4000);
+    showToast(message, type === "danger" ? "error" : "success");
 }
 
 function showTransferAlert(message, type = "success"){
-    const alertBox = document.getElementById("transferAlertBox");
-    if (!alertBox) return;
-    alertBox.style.display = "block";
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerText = message;
-
-    setTimeout(() => {
-        alertBox.style.display = "none";
-    }, 4000);
+    showToast(message, type === "danger" ? "error" : "success");
 }
 
 function showDischargeAlert(message, type = "success"){
-    const alertBox = document.getElementById("dischargeAlertBox");
-    if (!alertBox) return;
-    alertBox.style.display = "block";
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerText = message;
-
-    setTimeout(() => {
-        alertBox.style.display = "none";
-    }, 4000);
+    showToast(message, type === "danger" ? "error" : "success");
 }
 
 function showAppointmentAlert(message, type = "success") {
-    const alertBox = document.getElementById("appointmentAlertBox");
-    if (!alertBox) return;
+    showToast(message, type === "danger" ? "error" : "success");
+}
 
-    alertBox.style.display = "block";
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerText = message;
+/* PASSWORD MESSAGE HELPERS NOW USE TOAST */
+function showSuccess(text) {
+    showToast(text, "success");
+}
 
-    setTimeout(() => {
-        alertBox.style.display = "none";
-    }, 4000);
+function showError(text) {
+    showToast(text, "error");
 }
 
 async function loadWards() {
@@ -965,6 +1118,7 @@ async function loadWards() {
         if (!res.ok) {
             document.getElementById("wardsTableBody").innerHTML =
                 `<tr><td colspan="4" class="text-center text-danger">Failed to load wards.</td></tr>`;
+            showToast("Failed to load wards.", "error");
             return;
         }
 
@@ -992,8 +1146,10 @@ async function loadWards() {
         console.error("Load wards error:", error);
         document.getElementById("wardsTableBody").innerHTML =
             `<tr><td colspan="4" class="text-center text-danger">Network error loading wards.</td></tr>`;
+        showToast("Network error loading wards.", "error");
     }
 }
+
 async function loadTransferPatientOptions() {
     const select = document.getElementById("transferPatientSelect");
     if (!select) return;
@@ -1011,6 +1167,7 @@ async function loadTransferPatientOptions() {
 
         if (!res.ok) {
             select.innerHTML = `<option value="">Failed to load patients</option>`;
+            showToast("Failed to load patients.", "error");
             return;
         }
 
@@ -1032,6 +1189,7 @@ async function loadTransferPatientOptions() {
     } catch (error) {
         console.error("Failed to load transfer patients:", error);
         select.innerHTML = `<option value="">Network error loading patients</option>`;
+        showToast("Network error loading patients.", "error");
     }
 }
 
@@ -1052,6 +1210,7 @@ async function loadTransferWardOptions() {
 
         if (!res.ok) {
             select.innerHTML = `<option value="">Failed to load wards</option>`;
+            showToast("Failed to load wards.", "error");
             return;
         }
 
@@ -1073,6 +1232,7 @@ async function loadTransferWardOptions() {
     } catch (error) {
         console.error("Failed to load transfer wards:", error);
         select.innerHTML = `<option value="">Network error loading wards</option>`;
+        showToast("Network error loading wards.", "error");
     }
 }
 
@@ -1090,10 +1250,10 @@ async function loadDischargePatientOptions() {
         if (!res) return;
 
         const data = await res.json();
-        console.log("Discharge patients response:", data);
 
         if (!res.ok) {
             select.innerHTML = `<option value="">Failed to load patients</option>`;
+            showToast("Failed to load patients.", "error");
             return;
         }
 
@@ -1115,6 +1275,7 @@ async function loadDischargePatientOptions() {
     } catch (error) {
         console.error("Failed to load discharge patients:", error);
         select.innerHTML = `<option value="">Network error loading patients</option>`;
+        showToast("Network error loading patients.", "error");
     }
 }
 
@@ -1127,10 +1288,9 @@ async function viewWard(id, name) {
         if (!res) return;
 
         const data = await res.json();
-        console.log("Ward response:", data);
 
         if (!res.ok) {
-            alert(data.message || "Failed to load ward");
+            showToast(data.message || "Failed to load ward", "error");
             return;
         }
 
@@ -1157,43 +1317,12 @@ async function viewWard(id, name) {
 
     } catch (error) {
         console.error("Ward view error:", error);
-        alert("Network error while loading ward");
+        showToast("Network error while loading ward.", "error");
     }
 }
+
 function closeWardView() {
     document.getElementById("wardViewModal").style.display = "none";
-}
-
-/* PASSWORD MESSAGES */
-function showSuccess(text) {
-    const message = document.getElementById("passwordMessage");
-    if (!message) return;
-
-    message.style.background = "#d1fae5";
-    message.style.color = "#065f46";
-    message.style.padding = "10px";
-    message.style.borderRadius = "8px";
-    message.style.border = "1px solid #10b981";
-    message.style.fontWeight = "600";
-    message.innerHTML = "✔ " + text;
-
-    setTimeout(() => {
-        message.innerHTML = "";
-        message.style = "";
-    }, 3000);
-}
-
-function showError(text) {
-    const message = document.getElementById("passwordMessage");
-    if (!message) return;
-
-    message.style.background = "#fee2e2";
-    message.style.color = "#991b1b";
-    message.style.padding = "10px";
-    message.style.borderRadius = "8px";
-    message.style.border = "1px solid #ef4444";
-    message.style.fontWeight = "600";
-    message.innerHTML = "✖ " + text;
 }
 
 /* LOAD CURRENT USER */
@@ -1307,9 +1436,6 @@ document.getElementById("updateProfileForm").addEventListener("submit", async fu
     }
 });
 
-
-
-
 /* CHANGE PASSWORD */
 document.getElementById("passwordForm").addEventListener("submit", async function(e){
     e.preventDefault();
@@ -1318,10 +1444,6 @@ document.getElementById("passwordForm").addEventListener("submit", async functio
     const currentPassword = document.getElementById("currentPassword").value.trim();
     const newPassword = document.getElementById("newPassword").value.trim();
     const confirmPassword = document.getElementById("confirmPassword").value.trim();
-    const message = document.getElementById("passwordMessage");
-
-    message.innerHTML = "";
-    message.style = "";
 
     if (!currentPassword || !newPassword || !confirmPassword) {
         showError("All password fields are required");
@@ -1387,6 +1509,7 @@ async function loadPatientOptions() {
 
         if (!res.ok) {
             select.innerHTML = `<option value="">Failed to load patients</option>`;
+            showToast("Failed to load patients.", "error");
             return;
         }
 
@@ -1398,7 +1521,7 @@ async function loadPatientOptions() {
         }
 
         select.innerHTML = `
-            // <option value="">Select Patient</option>
+            <option value="">Select Patient</option>
             ${patients.map(p => `
                 <option value="${p.id}">
                     ${p.firstname ?? ""} ${p.lastname ?? ""} - ${p.email ?? ""}
@@ -1408,9 +1531,9 @@ async function loadPatientOptions() {
     } catch (error) {
         console.error("Failed to load patients:", error);
         select.innerHTML = `<option value="">Network error loading patients</option>`;
+        showToast("Network error loading patients.", "error");
     }
 }
-
 
 document.getElementById("appointmentForm").addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -1455,7 +1578,6 @@ document.getElementById("appointmentForm").addEventListener("submit", async func
         if (!res) return;
 
         const data = await res.json();
-        console.log("Appointment response:", data);
 
         if (!res.ok) {
             showAppointmentAlert(data.message || "Failed to create appointment slot", "danger");
@@ -1496,6 +1618,7 @@ async function loadWardOptions() {
 
         if (!res.ok) {
             select.innerHTML = `<option value="">Failed to load wards</option>`;
+            showToast("Failed to load wards.", "error");
             return;
         }
 
@@ -1517,14 +1640,15 @@ async function loadWardOptions() {
     } catch (error) {
         console.error("Failed to load wards:", error);
         select.innerHTML = `<option value="">Network error loading wards</option>`;
+        showToast("Network error loading wards.", "error");
     }
 }
+
 /* ADMIT PATIENT */
 document.getElementById("admitForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
     const admitBtn = document.getElementById("admitBtn");
-
     const patientId = document.getElementById("patientSelect").value;
     const wardId = document.getElementById("wardSelect").value;
     const reasonforadmission = document.getElementById("reason").value.trim();
@@ -1578,7 +1702,6 @@ document.getElementById("transferForm").addEventListener("submit", async functio
     e.preventDefault();
 
     const transferBtn = document.getElementById("transferBtn");
-
     const patientId = document.getElementById("transferPatientSelect").value;
     const transferto = document.getElementById("transferWardSelect").value;
     const reason = document.getElementById("transferReason").value.trim();
@@ -1628,12 +1751,74 @@ document.getElementById("transferForm").addEventListener("submit", async functio
     }
 });
 
+
+
+async function loadPatientDetails() {
+    const tbody = document.getElementById("patientDetailsTableBody");
+    if (!tbody) return;
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Loading patients...</td></tr>`;
+
+        const res = await fetchWithAuth(`${PATIENTS_ENDPOINT}?page=1&pageSize=100`, {
+            method: "GET"
+        });
+
+        if (!res) return;
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        ${result.message || "Failed to load patients"}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const patients = result.data || [];
+
+        if (!patients.length) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        No patients found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = patients.map(patient => `
+            <tr>
+                <td>${safeText(patient.firstname)}</td>
+                <td>${safeText(patient.lastname)}</td>
+                <td>${safeText(patient.ward?.name)}</td>
+                <td>${safeText(patient.gender)}</td>
+                <td>${safeText(patient.email)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Load patient details error:", error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-danger">
+                    Network error loading patients.
+                </td>
+            </tr>
+        `;
+    }
+}
+
 /* DISCHARGE PATIENT */
 document.getElementById("dischargeForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
     const dischargeBtn = document.getElementById("dischargeBtn");
-
     const patientId = document.getElementById("dischargePatientSelect").value;
     const reason = document.getElementById("dischargeReason").value.trim();
 
@@ -1697,6 +1882,7 @@ async function initDashboard() {
     }
 
     await loadCurrentUser();
+    restoreDoctorSection();
 
     const loader = document.getElementById("pageLoader");
     if (loader) loader.style.display = "none";
